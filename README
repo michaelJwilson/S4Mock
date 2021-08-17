@@ -1,9 +1,19 @@
 ##  
 
-
 ##  MTL
 ##  >>  $DESI_ROOT/survey/catalogs/SV3/LSS/LSScats/v0.1/LRG_oneperztrue_clus.dat.fits
 ##  >>  /global/cfs/cdirs/desi/survey/catalogs/SV3/LSS/LSScats/v0.1/
 
 ##  Mock MTL.
-##  >>  /global/cfs/cdirs/desi/datachallenge/onepercent/catalogs/dark/LRG_oneperztrue_clus.dat.fits 
+##  >>  /global/cfs/cdirs/desi/datachallenge/onepercent/catalogs/dark/LRG_oneperztrue_clus.dat.fits
+
+
+##  Run assignment
+export PATH=/global/homes/m/mjwilson/desi/S4MOCK/LSS/bin/:$PATH
+export PYTHONPATH=//global/homes/m/mjwilson/desi/S4MOCK/LSS/py/:$PYTHONPATH
+
+##
+##  Copied:
+##    /global/cfs/cdirs/desi/survey/catalogs/SV3/LSS/altmtl/debug_ajr/orig_mtls_static/sv3/bright/sv3mtl-bright-hp-1991.ecsv
+##  to
+##    /global/cscratch1/sd/mjwilson/S4MOCK/orig_mtls/bright/

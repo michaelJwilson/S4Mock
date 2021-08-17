@@ -1,0 +1,159 @@
+mjwilson@cori10:~/desi/S4MOCK> python gen_alts.py 
+WARNING: leap-second auto-update failed due to the following exception: RuntimeError('Cache is locked after 5.01 s. This may indicate an astropy bug or that kill -9 was used. If you want to unlock the cache remove the directory /global/homes/m/mjwilson/.astropy/cache/download/py3/lock. Lock claims to be held by process .') [astropy.time.core]
+/global/common/software/desi/cori/desiconda/20200801-1.4.0-spec/code/desitarget/master/py/desitarget/__init__.py
+/global/common/software/desi/cori/desiconda/20200801-1.4.0-spec/code/desitarget/master/py/desitarget/mtl.py
+/global/common/software/desi/cori/desiconda/20200801-1.4.0-spec/code/desitarget/master/py/desitarget/io.py
+/global/common/software/desi/cori/desiconda/20200801-1.4.0-spec/conda/lib/python3.8/site-packages/astropy/io/fits/__init__.py
+//global/homes/m/mjwilson/desi/S4MOCK/LSS/py/LSS/SV3/fatools.py
+/global/cfs/cdirs/desi/target/mtl
+/global/cfs/cdirs/desi/target/mtl/mtl-done-tiles.ecsv
+INFO:altmtltools.py:309:loop_alt_ledger: running on PRIMARY ledger with obscon=BRIGHT and survey=sv3
+/global/cfs/cdirs/desi/spectro/redux/daily
+/global/cfs/cdirs/desi/spectro/redux/daily/tiles-specstatus.ecsv
+
+
+
+**NUMBER OF DIRECTORY*******
+0
+
+
+
+
+/global/cscratch1/sd/mjwilson/S4MOCK/alt_mtls//0/sv3/bright
+/global/cfs/cdirs/desi/spectro/redux/daily
+/global/cscratch1/sd/mjwilson/S4MOCK/alt_mtls//0/mtl-done-tiles.ecsv
+BRIGHT
+sv3
+checkpoint A
+checkpoint b
+checkpoint c
+checkpoint c1
+['20210405']
+20210405
+checkpoint d
+000039
+checkpoint e
+checkpoint f
+/global/cfs/cdirs/desi/survey/fiberassign/SV3/20210405/
+checkpoint g
+checkpoitn h
+checkpoint d
+000174
+checkpoint e
+checkpoint f
+/global/cfs/cdirs/desi/survey/fiberassign/SV3/20210405/
+checkpoint g
+checkpoitn h
+checkpoint d
+000201
+checkpoint e
+checkpoint f
+/global/cfs/cdirs/desi/survey/fiberassign/SV3/20210405/
+checkpoint g
+checkpoitn h
+checkpoint d
+000147
+checkpoint e
+checkpoint f
+/global/cfs/cdirs/desi/survey/fiberassign/SV3/20210405/
+checkpoint g
+checkpoitn h
+checkpoint i
+INFO:altmtltools.py:442:loop_alt_ledger: Update state for 16144 targets (the zcats also contain 1687 skies with +ve TARGETIDs)
+checkpoint j
+no matches for negative tas [-196241, -196281, -197241, -197281, -198241, -198281, -199241, -199281, -200241, -200281, -201241, -201281, -202241, -202281, -203241, -203281, -204241, -204281, -205241, -205281]
+no matches for negative tas [-873941, -873981, -874941, -874981, -875941, -875981, -876941, -876981, -877941, -877981, -878941, -878981, -879941, -879981, -880941, -880981, -881941, -881981, -882941, -882981]
+no matches for negative tas [-1009481, -1009521, -1010481, -1010521, -1011481, -1011521, -1012481, -1012521, -1013481, -1013521, -1014481, -1014521, -1015481, -1015521, -1016481, -1016521, -1017481, -1017521, -1018481, -1018521]
+no matches for negative tas [-738401, -738441, -739401, -739441, -740401, -740441, -741401, -741441, -742401, -742441, -743401, -743441, -744401, -744441, -745401, -745441, -746401, -746441, -747401, -747441]
+checkpoint k
+<class 'astropy.table.table.Table'>
+[('RA', '>f8'), ('DEC', '>f8'), ('TARGETID', '>i8'), ('NUMOBS', '>i4'), ('Z', '>f8'), ('ZWARN', '>i8'), ('ZTILEID', '>i4')]
+[]
+supposedly, no duplicates
+<class 'astropy.table.table.Table'>
+[('RA', '>f8'), ('DEC', '>f8'), ('TARGETID', '>i8'), ('NUMOBS', '>i4'), ('Z', '>f8'), ('ZWARN', '>i8'), ('ZTILEID', '>i4')]
+checkpoint l
+INFO:mtl.py:416:make_mtl: Ignoring 17831 z entries that aren't in the input target list (e.g. likely skies, secondaries-when-running-primary, primaries-when-running-secondary, etc.)
+WARNING:mtl.py:437:make_mtl: The size of the zcat has changed, so it won't be modified!
+INFO:targets.py:866:calc_priority: 0 scnd targets to be updated as secondary-only
+INFO:targets.py:897:calc_priority: 0 more scnd targets allowed to update MWS primaries
+INFO:targets.py:902:calc_priority: 0 scnd targets to be updated in total
+INFO:mtl.py:512:make_mtl: 0 of 0 targets have priority <=2, setting N_obs=0.
+INFO:mtl.py:587:make_mtl: Done...t=0.0s
+checkpoint m
+checkpoint n
+
+
+
+**NUMBER OF DIRECTORY*******
+1
+
+
+
+
+/global/cscratch1/sd/mjwilson/S4MOCK/alt_mtls//1/sv3/bright
+/global/cfs/cdirs/desi/spectro/redux/daily
+/global/cscratch1/sd/mjwilson/S4MOCK/alt_mtls//1/mtl-done-tiles.ecsv
+BRIGHT
+sv3
+checkpoint A
+checkpoint b
+checkpoint c
+checkpoint c1
+['20210405']
+20210405
+checkpoint d
+000039
+checkpoint e
+checkpoint f
+/global/cfs/cdirs/desi/survey/fiberassign/SV3/20210405/
+checkpoint g
+checkpoitn h
+checkpoint d
+000174
+checkpoint e
+checkpoint f
+/global/cfs/cdirs/desi/survey/fiberassign/SV3/20210405/
+checkpoint g
+checkpoitn h
+checkpoint d
+000201
+checkpoint e
+checkpoint f
+/global/cfs/cdirs/desi/survey/fiberassign/SV3/20210405/
+checkpoint g
+checkpoitn h
+checkpoint d
+000147
+checkpoint e
+checkpoint f
+/global/cfs/cdirs/desi/survey/fiberassign/SV3/20210405/
+checkpoint g
+checkpoitn h
+checkpoint i
+INFO:altmtltools.py:442:loop_alt_ledger: Update state for 16144 targets (the zcats also contain 1687 skies with +ve TARGETIDs)
+checkpoint j
+no matches for negative tas [-196241, -196281, -197241, -197281, -198241, -198281, -199241, -199281, -200241, -200281, -201241, -201281, -202241, -202281, -203241, -203281, -204241, -204281, -205241, -205281]
+no matches for negative tas [-873941, -873981, -874941, -874981, -875941, -875981, -876941, -876981, -877941, -877981, -878941, -878981, -879941, -879981, -880941, -880981, -881941, -881981, -882941, -882981]
+no matches for negative tas [-1009481, -1009521, -1010481, -1010521, -1011481, -1011521, -1012481, -1012521, -1013481, -1013521, -1014481, -1014521, -1015481, -1015521, -1016481, -1016521, -1017481, -1017521, -1018481, -1018521]
+no matches for negative tas [-738401, -738441, -739401, -739441, -740401, -740441, -741401, -741441, -742401, -742441, -743401, -743441, -744401, -744441, -745401, -745441, -746401, -746441, -747401, -747441]
+checkpoint k
+<class 'astropy.table.table.Table'>
+[('RA', '>f8'), ('DEC', '>f8'), ('TARGETID', '>i8'), ('NUMOBS', '>i4'), ('Z', '>f8'), ('ZWARN', '>i8'), ('ZTILEID', '>i4')]
+[]
+supposedly, no duplicates
+<class 'astropy.table.table.Table'>
+[('RA', '>f8'), ('DEC', '>f8'), ('TARGETID', '>i8'), ('NUMOBS', '>i4'), ('Z', '>f8'), ('ZWARN', '>i8'), ('ZTILEID', '>i4')]
+checkpoint l
+INFO:mtl.py:416:make_mtl: Ignoring 17831 z entries that aren't in the input target list (e.g. likely skies, secondaries-when-running-primary, primaries-when-running-secondary, etc.)
+WARNING:mtl.py:437:make_mtl: The size of the zcat has changed, so it won't be modified!
+INFO:targets.py:866:calc_priority: 0 scnd targets to be updated as secondary-only
+INFO:targets.py:897:calc_priority: 0 more scnd targets allowed to update MWS primaries
+INFO:targets.py:902:calc_priority: 0 scnd targets to be updated in total
+INFO:mtl.py:512:make_mtl: 0 of 0 targets have priority <=2, setting N_obs=0.
+INFO:mtl.py:587:make_mtl: Done...t=0.0s
+checkpoint m
+checkpoint n
+[INFO/MainProcess] process shutting down
+[DEBUG/MainProcess] running all "atexit" finalizers with priority >= 0
+[DEBUG/MainProcess] running the remaining "atexit" finalizers
