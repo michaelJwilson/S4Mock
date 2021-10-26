@@ -1,3 +1,6 @@
+import sys
+sys.path.append('/global/homes/l/lbigwood/LSS/py')
+
 from LSS.SV3.altmtltools import initializeAlternateMTLs, loop_alt_ledger
 from astropy.table import Table
 
