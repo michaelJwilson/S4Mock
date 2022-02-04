@@ -1,0 +1,147 @@
+loop alt. ledger:
+https://github.com/desihub/LSS/blob/8d9e1ec1b4ae7e190bd5e73a848dd4d8eaa79b55/py/LSS/SV3/altmtltools.py#L393
+
+zcatalog datamodel:
+https://github.com/desihub/LSS/blob/8d9e1ec1b4ae7e190bd5e73a848dd4d8eaa79b55/py/LSS/SV3/altmtltools.py#L30
+
+get mtldir:
+    https://github.com/desihub/LSS/blob/8d9e1ec1b4ae7e190bd5e73a848dd4d8eaa79b55/py/LSS/SV3/altmtltools.py#L474
+    https://github.com/desihub/desitarget/blob/b3c58c89bbc5e07902154a0f0d890f62d4e29539/py/desitarget/mtl.py#L281
+
+        If `mtldir` is passed, it is returned from this function. If it's
+        not passed, the $MTL_DIR environment variable is returned.
+
+    https://github.com/desihub/desitarget/blob/b3c58c89bbc5e07902154a0f0d890f62d4e29539/py/desitarget/mtl.py#L349
+        "mtl-done-tiles.ecsv"
+
+tiles:
+        # https://github.com/desihub/desitarget/blob/b3c58c89bbc5e07902154a0f0d890f62d4e29539/py/desitarget/mtl.py#L356
+                get_ztile_file_name()
+                        zcatdir/"tiles-specstatus.ecsv"
+                                TILEID,	ZDATE
+
+        # https://github.com/desihub/desitarget/blob/b3c58c89bbc5e07902154a0f0d890f62d4e29539/py/desitarget/mtl.py#L2075
+
+get zcatdir:
+https://github.com/desihub/LSS/blob/8d9e1ec1b4ae7e190bd5e73a848dd4d8eaa79b55/py/LSS/SV3/altmtltools.py#L489
+
+make zcat:
+https://github.com/desihub/LSS/blob/8d9e1ec1b4ae7e190bd5e73a848dd4d8eaa79b55/py/LSS/SV3/altmtltools.py#L572
+        https://github.com/desihub/desitarget/blob/b3c58c89bbc5e07902154a0f0d890f62d4e29539/py/desitarget/mtl.py#L2208
+                https://github.com/desihub/desitarget/blob/b3c58c89bbc5e07902154a0f0d890f62d4e29539/py/desitarget/mtl.py#L2298
+
+                        zcatdatamodel = np.array([], dtype=[
+                                       ('RA', '>f8'),\
+                                       ('DEC', '>f8'),\
+                                       ('TARGETID', '>i8'),
+                                       ('NUMOBS', '>i4'),\
+                                       ('Z', '>f8'),\
+                                       ('ZWARN', '>i8'),\
+                                       ('ZTILEID', '>i4')
+                                       ])
+
+
+/global/cfs/cdirs/desi/survey/catalogs/SV3/LSS//altmtl/debug_jl/alt_mtls_run128/Univ000/fa/SV3//20210507/fa-000037.sh
+
+source /global/project/projectdirs/desi/software/desi_environment.sh master
+export SKYBRICKS_DIR=${DESI_ROOT}/target/skybricks/v2
+module swap fiberassign/2.4.0
+
+# https://github.com/desihub/fiberassign/tree/master/py/fiberassign/scripts/
+fba_run --targets /global/cfs/cdirs/desi/survey/catalogs/SV3/LSS/altmtl/debug_jl/alt_mtls_run128//Univ000//fa/SV3/20210507/000037-targ.fits
+                  /global/cfs/cdirs/desi/survey/fiberassign/SV3/20210507/000037-scnd.fits
+
+        --sky /global/cfs/cdirs/desi/survey/fiberassign/SV3/20210507/000037-sky.fits
+        --footprint /global/cfs/cdirs/desi/survey/fiberassign/SV3/20210507/000037-tiles.fits
+        --rundate 2021-05-07T19:16:32+00:00
+        --fieldrot 0.000817750726657575
+        --dir /global/cfs/cdirs/desi/survey/catalogs/SV3/LSS/altmtl/debug_jl/alt_mtls_run128//Univ000//fa/SV3/20210507/
+        --sky_per_petal 40
+        --standards_per_petal 10
+        --overwrite
+        --sky_per_slitblock 1
+
+
+        --by_tile:
+                disables redistrbution
+                https://github.com/desihub/fiberassign/blob/babf129d3e1612d67036e38ab5f2a5d25204b709/src/assign.cpp#L602
+                
+
+----  TARGETS  ----
+
+Required:
+  RA
+  DEC
+  OBSCON
+  DESI_TARGET
+  BGS_TARGET
+  MWS_TARGET
+  TARGETID
+  NUMOBS_MORE
+  PRIORITY
+  SUBPRIORITY
+
+
+('RELEASE',
+ 'BRICKID',
+ 'BRICKNAME',
+ 'BRICK_OBJID',
+ 'MORPHTYPE',
+ 'EBV',
+ 'FLUX_G',
+ 'FLUX_R',
+ 'FLUX_Z',
+ 'FLUX_IVAR_G',
+ 'FLUX_IVAR_R',
+ 'FLUX_IVAR_Z',
+ 'FLUX_W1',
+ 'FLUX_W2',
+ 'FLUX_IVAR_W1',
+ 'FLUX_IVAR_W2',
+ 'FIBERFLUX_G',
+ 'FIBERFLUX_R',
+ 'FIBERFLUX_Z',
+ 'FIBERTOTFLUX_G',
+ 'FIBERTOTFLUX_R',
+ 'FIBERTOTFLUX_Z',
+ 'MASKBITS',
+ 'SHAPE_R',
+ 'SHAPE_E1',
+ 'SHAPE_E2',
+ 'SERSIC',
+ 'REF_ID',
+ 'REF_CAT',
+ 'GAIA_PHOT_G_MEAN_MAG',
+ 'GAIA_PHOT_BP_MEAN_MAG',
+ 'GAIA_PHOT_RP_MEAN_MAG',
+ 'PHOTSYS',
+ 'TARGETID',
+ 'RA',
+ 'DEC',
+ 'REF_EPOCH',
+ 'PARALLAX',
+ 'PMRA',
+ 'PMDEC',
+ 'SV3_DESI_TARGET',
+ 'SV3_BGS_TARGET',
+ 'SV3_MWS_TARGET',
+ 'SUBPRIORITY',
+ 'OBSCONDITIONS',
+ 'PRIORITY_INIT',
+ 'NUMOBS_INIT',
+ 'SV3_SCND_TARGET',
+ 'NUMOBS_MORE',
+ 'NUMOBS',
+ 'Z',
+ 'ZWARN',
+ 'ZTILEID',
+ 'TARGET_STATE',
+ 'TIMESTAMP',
+ 'VERSION',
+ 'PRIORITY',
+ 'PLATE_RA',
+ 'PLATE_DEC',
+ 'PLATE_REF_EPOCH')
+
+
+
