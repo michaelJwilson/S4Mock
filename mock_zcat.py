@@ -10,31 +10,27 @@ from astropy import constants as const
 from astropy import units as u
 from astropy.table import QTable
 
+import os
 import healpy as hp
 import math
 
 import sys
-sys.path.append('/global/homes/l/lbigwood/LSS/py')
+
+sys.path.append(os.environ['HOME'] + '/LSS/py')
+
 import LSS
 import LSS.SV3
 import LSS.SV3.cattools as cattools
 
-from desitarget.sv3.sv3_targetmask import desi_mask, bgs_mask, mws_mask
-from desitarget.geomask import get_imaging_maskbits 
-
-nside = 32
-orig_density_per_deg = 2500
-
-npix = hp.nside2npix(nside)
-pixel_area = hp.nside2pixarea(nside,degrees=True)
+from   desitarget.sv3.sv3_targetmask import desi_mask, bgs_mask, mws_mask
+from   desitarget.geomask import get_imaging_maskbits 
 
 
-
-def create_mock_zcat_hp(file = '/global/cscratch1/sd/mjwilson/desi/BGS/lumfn/MXXL/bright_v0.9.fits',healpix=2286):
+def create_mock_zcat_hp(fpath='/global/cscratch1/sd/mjwilson/desi/BGS/lumfn/MXXL/bright_v0.9.fits', healpix=2286, nside=32):    
+    npix = hp.nside2npix(nside)
+    pixel_area = hp.nside2pixarea(nside, degrees=True)
     
-    #map of all healpix in MXXL file
-    
-    f = fits.open(file)
+    f = fits.open(fpath)
     mxxl=f[1].data
 
     theta = np.pi / 2. - np.radians(mxxl['DEC'].data)
@@ -54,8 +50,7 @@ def create_mock_zcat_hp(file = '/global/cscratch1/sd/mjwilson/desi/BGS/lumfn/MXX
     targets_per_pixel[targets_per_pixel == 0] = np.NaN 
     
     #########################
-    
-    #cut to a single pixel
+    # cut to a single pixel
     
     single_mask = (all_pixel_indices==healpix)
     single_pixel_mxxl = mxxl[single_mask]
@@ -63,8 +58,7 @@ def create_mock_zcat_hp(file = '/global/cscratch1/sd/mjwilson/desi/BGS/lumfn/MXX
     
     #########################
 
-    #set values for mock zcat
-
+    # set values for mock zcat
     zcatdatamodel = np.array([], dtype=[
                                        ('RA', '>f8'),\
                                        ('DEC', '>f8'),\
