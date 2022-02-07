@@ -25,10 +25,12 @@ from   desitarget.sv3.sv3_targetmask import desi_mask, bgs_mask, mws_mask
 from   desitarget.geomask import get_imaging_maskbits 
 
 
-def load_mxxl(nside=32):
+def load_mxxl(nside=32, subsample=1):
     fpath = '/global/cscratch1/sd/mjwilson/desi/BGS/lumfn/MXXL/bright_v0.9.fits'
     mxxl  = Table.read(fpath)
 
+    mxxl  = mxxl[::subsample]
+    
     theta = np.pi / 2. - np.radians(mxxl['DEC'].data)
     phi   = np.radians(mxxl['RA'].data)
 
@@ -41,7 +43,8 @@ def create_mock_ledger_hp(outdir, healpix=2286, nside=32, mxxl=None, overwrite=F
     if mxxl == None:
         mxxl = load_mxxl()
 
-    opath = outdir + '/testledger-{:06d}.ecsv'.format(healpix)
+    # E.g. /global/cfs/cdirs/desi/survey/catalogs/SV3/LSS//altmtl/debug_jl/alt_mtls_run128/Univ000/sv3/bright/sv3mtl-bright-hp-2286.ecsv
+    opath = outdir + '/sv3mtl-bright-hp-{:d}.ecsv'.format(healpix)
 
     if os.path.isfile(opath) & ~overwrite:
         print(f'Warning: {opath} exists; skipping.')
@@ -81,27 +84,40 @@ def create_mock_ledger_hp(outdir, healpix=2286, nside=32, mxxl=None, overwrite=F
         single_pixel_mxxl[x] = -99
 
     # TODO:  BGS_TARGET, DESI_TARGET -> SV3_BGS_TARGET; SV3_DESI_TARGET.
-        
+
+    # HACK
+    # single_pixel_mxxl.rename_column('BGS_TARGET',  'SV3_BGS_TARGET')
+    # single_pixel_mxxl.rename_column('DESI_TARGET', 'SV3_DESI_TARGET')
+    # single_pixel_mxxl.rename_column('MWS_TARGET',  'SV3_MWS_TARGET')
+
+    # HACK
+    del single_pixel_mxxl['BGS_TARGET']
+    del	single_pixel_mxxl['DESI_TARGET']
+
+    single_pixel_mxxl['SV3_MWS_TARGET']  = 0
+    single_pixel_mxxl['SV3_BGS_TARGET']  = 0
+    single_pixel_mxxl['SV3_DESI_TARGET'] = 0
+    
     #bright columns using modal values, for initial ledger. 
-    single_pixel_mxxl['PRIORITY_INIT'][is_bright] = 102100
-    single_pixel_mxxl['PRIORITY'][is_bright]      = 102100
-    single_pixel_mxxl['BGS_TARGET'][is_bright]    = 514
-    single_pixel_mxxl['DESI_TARGET'][is_bright]   = 1152921504606846976 
+    single_pixel_mxxl['PRIORITY_INIT'][is_bright]   = 102100
+    single_pixel_mxxl['PRIORITY'][is_bright]        = 102100
+    single_pixel_mxxl['SV3_BGS_TARGET'][is_bright]  = 514
+    single_pixel_mxxl['SV3_DESI_TARGET'][is_bright] = 1152921504606846976 
 
     #faint columns using modal values 
-    single_pixel_mxxl['PRIORITY_INIT'][is_faint]  = 102000
-    single_pixel_mxxl['PRIORITY'][is_faint]       = 102000
-    single_pixel_mxxl['BGS_TARGET'][is_faint]     = 257
-    single_pixel_mxxl['DESI_TARGET'][is_faint]    = 1152921504606846976
+    single_pixel_mxxl['PRIORITY_INIT'][is_faint]   = 102000
+    single_pixel_mxxl['PRIORITY'][is_faint]        = 102000
+    single_pixel_mxxl['SV3_BGS_TARGET'][is_faint]  = 257
+    single_pixel_mxxl['SV3_DESI_TARGET'][is_faint] = 1152921504606846976
     
     #promote the faint higher priority ones i.e 20\% of faints
     draws    = np.random.uniform(0, 1, len(single_pixel_mxxl))
     is_hip   = (draws > 0.8) & is_faint
 
-    single_pixel_mxxl['PRIORITY_INIT'][is_hip]    = 102100
-    single_pixel_mxxl['PRIORITY'][is_hip]         = 102100
-    single_pixel_mxxl['DESI_TARGET'][is_hip]      = 1152921504606846976 
-    single_pixel_mxxl['BGS_TARGET'][is_hip]       = 265 
+    single_pixel_mxxl['PRIORITY_INIT'][is_hip]     = 102100
+    single_pixel_mxxl['PRIORITY'][is_hip]          = 102100
+    single_pixel_mxxl['SV3_DESI_TARGET'][is_hip]   = 1152921504606846976 
+    single_pixel_mxxl['SV3_BGS_TARGET'][is_hip]    = 265 
 
     print('Check: {:.3f}'.format(np.mean(is_hip)))
     
@@ -117,7 +133,7 @@ def create_mock_ledger_hp(outdir, healpix=2286, nside=32, mxxl=None, overwrite=F
 
         ('PMRA', '>f4'), ('PMDEC', '>f4'), ('REF_EPOCH', '>f4'), 
 
-        ('DESI_TARGET', '>i8'), ('BGS_TARGET', '>i8'), ('MWS_TARGET', '>i8'), 
+        ('SV3_DESI_TARGET', '>i8'), ('SV3_BGS_TARGET', '>i8'), ('SV3_MWS_TARGET', '>i8'), 
 
         ('SCND_TARGET', '>i8'), ('TARGETID', '>i8'), 
 
@@ -153,8 +169,8 @@ def create_mock_ledger_hp(outdir, healpix=2286, nside=32, mxxl=None, overwrite=F
                    row['PMRA'],\
                    row['PMDEC'],\
                    row['REF_EPOCH'],\
-                   row['DESI_TARGET'],\
-                   row['BGS_TARGET'],\
+                   row['SV3_DESI_TARGET'],\
+                   row['SV3_BGS_TARGET'],\
                    0,\
                    0,\
                    prev_maxtid,\
@@ -172,15 +188,19 @@ def create_mock_ledger_hp(outdir, healpix=2286, nside=32, mxxl=None, overwrite=F
                    'BGS|UNOBS',\
                    -1))
 
-    t.meta['AUTHOR']   = 'L. Bigwood' 
-    t.meta['ISMOCK']   = 1 
-    t.meta['SURVEY']   = 'SV3'
-    t.meta['OBSCON']   = 'BRIGHT'
+    t.meta['AUTHOR']     = 'L. Bigwood' 
+    t.meta['ISMOCK']     = 1 
+    t.meta['SURVEY']     = 'sv3'
+    t.meta['OBSCON']     = 'BRIGHT'
+    t.meta['FILENSID']   = 32
+    
     # t.meta['OVERRIDE'] = 'False'
+
+    # HACK
+    t['TARGETID']        = 1000 * healpix + np.arange(len(t))
     
     print(f'Writing {opath}')
-
-    # E.g. /global/cfs/cdirs/desi/survey/catalogs/SV3/LSS//altmtl/debug_jl/alt_mtls_run128/Univ000/sv3/bright/sv3mtl-bright-hp-2286.ecsv
+    
     t.write(opath, format='ascii.ecsv', overwrite=overwrite)
     
     return  0
@@ -192,7 +212,7 @@ if __name__ == '__main__':
     parser.add_argument('--healpixel',  type=int, default=2286, help='Healpixel.')
     parser.add_argument('--nside',      type=int, default=32,   help='nside.')
     parser.add_argument('--overwrite',  help='Overwrite existing files', action='store_true')
-    parser.add_argument('--outdir',     type=str, help='Output directory.', required=True)
+    parser.add_argument('--outdir',     type=str, help='Output directory.', default='/global/cscratch1/sd/mjwilson/altmtls/iledger/')
     
     args      = parser.parse_args()
     hpixel    = args.healpixel
@@ -200,7 +220,7 @@ if __name__ == '__main__':
     overwrite = args.overwrite
     outdir    = args.outdir 
 
-    mxxl      = load_mxxl()
+    mxxl      = load_mxxl(subsample=100)
 
     hps       = [6399, 6570, 6741, 6743, 6912, 6914]
     hps      += [6398, 6399, 6570, 6740, 6741, 6743, 6912, 6914]

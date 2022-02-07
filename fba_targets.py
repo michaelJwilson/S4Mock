@@ -10,7 +10,7 @@ from   LSS.SV3.cattools import tile2rosette
 from   desimodel.footprint import tiles2pix
 
 
-root  = os.environ['CSCRATCH'] + '/altmtl/'
+root      = os.environ['CSCRATCH'] + '/altmtl/'
 
 # ---- Get SV3 tiles and assign rosette ---
 sv3_tiles = Table.read('/global/cfs/cdirs/desi/survey/ops/surveyops/trunk/ops/tiles-sv3.ecsv')

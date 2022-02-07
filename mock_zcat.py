@@ -4,14 +4,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 
-from astropy.io import fits as fits
-from astropy.table import Table
-from astropy import constants as const
-from astropy import units as u
-from astropy.table import QTable
+from   astropy.io import fits as fits
+from   astropy.table import Table
+from   astropy import constants as const
+from   astropy import units as u
+from   astropy.table import QTable
 
 import os
 import healpy as hp
+import fitsio
 import math
 
 import sys
@@ -26,39 +27,9 @@ from   desitarget.sv3.sv3_targetmask import desi_mask, bgs_mask, mws_mask
 from   desitarget.geomask import get_imaging_maskbits 
 
 
-def create_mock_zcat_hp(fpath='/global/cscratch1/sd/mjwilson/desi/BGS/lumfn/MXXL/bright_v0.9.fits', healpix=2286, nside=32):    
-    npix = hp.nside2npix(nside)
-    pixel_area = hp.nside2pixarea(nside, degrees=True)
-    
-    f = fits.open(fpath)
-    mxxl=f[1].data
-
-    theta = np.pi / 2. - np.radians(mxxl['DEC'].data)
-    phi = np.radians(mxxl['RA'].data)
-
-    #indices of pixels with non-zero density, unorganised list.
-    all_pixel_indices = hp.ang2pix(nside, theta, phi,nest=True, lonlat=False)
-
-    #indice of filled pixels and corrosponding targets in pixel
-    filled_pixel_index, filled_targets_per_pixel = np.unique(all_pixel_indices, return_counts=True) 
-
-    #no. targets per pixel, initially 0 
-    targets_per_pixel = np.zeros(hp.nside2npix(nside))
-
-    #update no. targets per pixel 
-    targets_per_pixel[filled_pixel_index] = filled_targets_per_pixel/pixel_area
-    targets_per_pixel[targets_per_pixel == 0] = np.NaN 
-    
-    #########################
-    # cut to a single pixel
-    
-    single_mask = (all_pixel_indices==healpix)
-    single_pixel_mxxl = mxxl[single_mask]
-    single_pixel_mxxl = Table(single_pixel_mxxl)
-    
-    #########################
-
-    # set values for mock zcat
+def fba2zcat(fpath='/global/cscratch1/sd/mjwilson/altmtls/fba-000037.fits'):    
+    # set values for mock zcat.
+    # RA, DEC, ZTILEID, NUMOBS, DELTACHI2, ZWARN;
     zcatdatamodel = np.array([], dtype=[
                                        ('RA', '>f8'),\
                                        ('DEC', '>f8'),\
@@ -68,11 +39,21 @@ def create_mock_zcat_hp(fpath='/global/cscratch1/sd/mjwilson/desi/BGS/lumfn/MXXL
                                        ('ZWARN', '>i8'),\
                                        ('ZTILEID', '>i4')
                                        ])
-    t = Table(mtldatamodel) 
+    zz  = Table(zcatdatamodel) 
 
-    prev_maxtid=0 
-    ztileid = 24 #int
+    fba = Table.read(fpath) 
+    tar = Table.read(fpath, 'FTARGETS')
+    # tar.pprint()
+    
+    # bgs = (fba['SV3_DESI_TARGET'].data & desi_mask['BGS_ANY']) != 0     
+    # bgs = fba[bgs]
+    bgs = fba
+    bgs.pprint()
 
+    # FIBER      TARGETID      LOCATION FIBERSTATUS LAMBDA_REF PETAL_LOC DEVICE_LOC DEVICE_TYPE     TARGET_RA           TARGET_DEC           FA_TARGET      FA_TYPE FIBERASSIGN_X FIBERASSIGN_Y
+    
+    exit(0)
+    '''
     for i, row in enumerate(single_pixel_mxxl):
         t.add_row((row['RA'],\
                    row['DEC'],\
@@ -81,8 +62,11 @@ def create_mock_zcat_hp(fpath='/global/cscratch1/sd/mjwilson/desi/BGS/lumfn/MXXL
                    row['Z']\
                    0,\
                    ztileid))
-
+    '''
     t.meta['AUTHOR']  = 'Leah Bigwood' 
     t.meta['Mock']    = True 
     
     return t 
+
+if __name__ == '__main__':
+    fba2zcat()
