@@ -1,8 +1,16 @@
+TODO:
+        What sense minimal?
+        https://github.com/desihub/LSS/blob/8d9e1ec1b4ae7e190bd5e73a848dd4d8eaa79b55/py/LSS/SV3/fatools.py#L33
+
+
 loop alt. ledger:
 https://github.com/desihub/LSS/blob/8d9e1ec1b4ae7e190bd5e73a848dd4d8eaa79b55/py/LSS/SV3/altmtltools.py#L393
 
 zcatalog datamodel:
 https://github.com/desihub/LSS/blob/8d9e1ec1b4ae7e190bd5e73a848dd4d8eaa79b55/py/LSS/SV3/altmtltools.py#L30
+
+zcatalog creation:
+https://github.com/desihub/desitarget/blob/b3c58c89bbc5e07902154a0f0d890f62d4e29539/py/desitarget/mtl.py#L2298
 
 get mtldir:
     https://github.com/desihub/LSS/blob/8d9e1ec1b4ae7e190bd5e73a848dd4d8eaa79b55/py/LSS/SV3/altmtltools.py#L474
@@ -40,6 +48,35 @@ https://github.com/desihub/LSS/blob/8d9e1ec1b4ae7e190bd5e73a848dd4d8eaa79b55/py/
                                        ('ZTILEID', '>i4')
                                        ])
 
+                        Additional needed:
+                            ``DESI_TARGET``,
+                            ``NUMOBS_INIT``,
+                            ``PRIORITY_INIT``.
+
+                            If ``None``, then assume the `zcat` includes ``RA`` and ``DEC`` and look up `targets` in the ledger.
+                            obscon : :class:`str`, optional, defaults to "DARK"
+
+
+                        numobs_from_ledger : :class:`bool`, optional, defaults to ``True``
+                        If ``True`` then inherit the number of observations so far from
+                        the ledger rather than expecting it to have a reasonable value
+                        in the `zcat.`
+
+                        if requested, use the previous values in the ledger to set
+                        # ADM NUMOBS in the zcat.
+
+                        "Ignoring {} z entries that aren't in the input target list"
+                        " (e.g. likely skies, secondaries-when-running-primary, "
+                        "primaries-when-running-secondary, etc.)".format(num_extra)
+
+                        ADM also ignore anything with NODATA set in ZWARN.
+                        nodata = zcat["ZWARN"] & zwarn_mask["NODATA"] != 0
+
+                        # SB ignore targets that failed QA: ZWARN bits BAD_SPECQA|BAD_PETALQA
+                        badqa = zcat["ZWARN"] & zwarn_mask.mask("BAD_SPECQA|BAD_PETALQA") != 0
+
+                        # ADM a necessary hack as we created ledgers for SV3 with
+                        # ADM NUMOBS_INIT==9 then later decided on NUMOBS_INIT==3.
 
 /global/cfs/cdirs/desi/survey/catalogs/SV3/LSS//altmtl/debug_jl/alt_mtls_run128/Univ000/fa/SV3//20210507/fa-000037.sh
 
@@ -65,8 +102,6 @@ fba_run --targets /global/cfs/cdirs/desi/survey/catalogs/SV3/LSS/altmtl/debug_jl
         --standards_per_petal 10
         --overwrite
         --sky_per_slitblock 1
-
-
         --by_tile:
                 disables redistrbution
                 https://github.com/desihub/fiberassign/blob/babf129d3e1612d67036e38ab5f2a5d25204b709/src/assign.cpp#L602
@@ -85,7 +120,6 @@ Required:
   NUMOBS_MORE
   PRIORITY
   SUBPRIORITY
-
 
 ('RELEASE',
  'BRICKID',
