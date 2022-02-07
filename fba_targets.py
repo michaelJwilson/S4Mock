@@ -41,6 +41,11 @@ print('\n\n')
 for tt, pp in zip(sv3_tiles['TILEID'], pix):
     print(tt, pp)
 
+sv3_tiles = sv3_tiles[:2]
+sv3_tiles.pprint()
+
+sv3_tiles.write('test-tiles.fits', format='fits', overwrite=True)
+    
 '''
 For every BGS Bright galaxy, assign a hp at the same nside.   By doing so, 
 get a target list for each tile in the above rosettes.

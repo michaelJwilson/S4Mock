@@ -1,3 +1,4 @@
+from astropy.table  import Table
 from desitarget.io  import read_targets_in_tiles
 from desitarget.mtl import tiles_to_be_processed, inflate_ledger
 
@@ -55,7 +56,11 @@ unique : :class:`bool`, optional, defaults to ``True``
         Returns the last entry. 
 '''
 
-read_targets_in_tiles(mtldir, tiles, quick=False, mtl=True, unique=True, isodate=mtltime)
+mtldir  = '/global/cscratch1/sd/mjwilson/altmtls/iledger/'
+tiles   = Table.read('/global/homes/m/mjwilson/desi/S4MOCK/LEAHFORK/S4Mock/test-tiles.fits')
+mtltime = None
+
+targ    = read_targets_in_tiles(mtldir, tiles, quick=False, mtl=True, unique=True, isodate=mtltime)
 
 # Checkpoint 'H'
 # Run fiberassign with subprocess.

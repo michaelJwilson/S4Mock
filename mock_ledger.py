@@ -36,12 +36,19 @@ def load_mxxl(nside=32):
     
     return  mxxl
     
-def create_mock_ledger_hp(outdir, healpix=2286, nside=32, mxxl=None):    
+def create_mock_ledger_hp(outdir, healpix=2286, nside=32, mxxl=None, overwrite=False):    
     # TODO: Check nside matches desitarget file split NSIDE.     
     if mxxl == None:
         mxxl = load_mxxl()
-    
-    npix = hp.nside2npix(nside)
+
+    opath = outdir + '/testledger-{:06d}.ecsv'.format(healpix)
+
+    if os.path.isfile(opath) & ~overwrite:
+        print(f'Warning: {opath} exists; skipping.')
+
+        return 0
+        
+    npix       = hp.nside2npix(nside)
     pixel_area = hp.nside2pixarea(nside,degrees=True)
 
     print('npix: {}; pixel_area: {} for nside: {}'.format(npix, pixel_area, nside))
@@ -165,33 +172,40 @@ def create_mock_ledger_hp(outdir, healpix=2286, nside=32, mxxl=None):
                    'BGS|UNOBS',\
                    -1))
 
-    t.meta['AUTHOR']  = 'L. Bigwood' 
-    t.meta['Mock']    = 1 
-
-    opath = outdir + '/testledger-{:06d}.fits'.format(healpix)
-
-    print(f'Writing {opath}')
+    t.meta['AUTHOR']   = 'L. Bigwood' 
+    t.meta['ISMOCK']   = 1 
+    t.meta['SURVEY']   = 'SV3'
+    t.meta['OBSCON']   = 'BRIGHT'
+    # t.meta['OVERRIDE'] = 'False'
     
-    t.write(opath, format='fits', overwrite=True)
+    print(f'Writing {opath}')
+
+    # E.g. /global/cfs/cdirs/desi/survey/catalogs/SV3/LSS//altmtl/debug_jl/alt_mtls_run128/Univ000/sv3/bright/sv3mtl-bright-hp-2286.ecsv
+    t.write(opath, format='ascii.ecsv', overwrite=overwrite)
     
     return  0
 
 
 if __name__ == '__main__':
     # python mock_ledger.py --healpixel 1 --nside 32
-    parser  = argparse.ArgumentParser(description='Create mock ledger for a given healpixel.')
+    parser    = argparse.ArgumentParser(description='Create mock ledger for a given healpixel.')
     parser.add_argument('--healpixel',  type=int, default=2286, help='Healpixel.')
     parser.add_argument('--nside',      type=int, default=32,   help='nside.')
+    parser.add_argument('--overwrite',  help='Overwrite existing files', action='store_true')
     parser.add_argument('--outdir',     type=str, help='Output directory.', required=True)
     
-    args    = parser.parse_args()
-    hpixel  = args.healpixel
-    nside   = args.nside
-    outdir  = args.outdir # /global/cscratch1/sd/mjwilson/desi/BGS/lumfn/MXXL/
+    args      = parser.parse_args()
+    hpixel    = args.healpixel
+    nside     = args.nside
+    overwrite = args.overwrite
+    outdir    = args.outdir 
 
-    mxxl    = load_mxxl()
+    mxxl      = load_mxxl()
 
-    for ii in [6399, 6570, 6741, 6743, 6912, 6914]:
-        create_mock_ledger_hp(outdir, healpix=ii, nside=nside, mxxl=mxxl)
+    hps       = [6399, 6570, 6741, 6743, 6912, 6914]
+    hps      += [6398, 6399, 6570, 6740, 6741, 6743, 6912, 6914]
+    
+    for ii in hps:
+        create_mock_ledger_hp(outdir, healpix=ii, nside=nside, mxxl=mxxl, overwrite=overwrite)
 
     print('\n\nDone.\n\n')
