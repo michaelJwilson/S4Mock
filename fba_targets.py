@@ -10,7 +10,16 @@ from   LSS.SV3.cattools import tile2rosette
 from   desimodel.footprint import tiles2pix
 
 
-root      = os.environ['CSCRATCH'] + '/altmtl/'
+root      = '/global/cscratch1/sd/mjwilson/altmtls/'
+
+'''
+def fetch_tiles(tpath):
+    tiles = Table.read('/global/cscratch1/sd/mjwilson/S4MOCK/tiles-sv3.ecsv')
+    tiles = tiles[(tiles['STATUS'] == 'done') & (tiles['PROGRAM']=='BRIGHT')]
+    tiles['ROSETTE'] = np.array([tile2rosette(x) for x in tiles['TILEID']])
+
+    return tiles
+'''
 
 # ---- Get SV3 tiles and assign rosette ---
 sv3_tiles = Table.read('/global/cfs/cdirs/desi/survey/ops/surveyops/trunk/ops/tiles-sv3.ecsv')
@@ -23,7 +32,10 @@ sv3_tiles['ROS'] = ros
 sv3_tiles.pprint()
 
 # ----  Limit tiles to rosettes: G12: [1,2]; G15: [8,9,10, 17] ----
-sv3_tiles = sv3_tiles[sv3_tiles['ROS'] == 1]
+# sv3_tiles = sv3_tiles[sv3_tiles['ROS'] == 1]
+
+
+sv3_tiles = sv3_tiles[sv3_tiles['TILEID'] == 39] 
 sv3_tiles.pprint()
 
 '''                                                                                                                                                                                                
@@ -41,7 +53,7 @@ print('\n\n')
 for tt, pp in zip(sv3_tiles['TILEID'], pix):
     print(tt, pp)
 
-sv3_tiles = sv3_tiles[:2]
+sv3_tiles = sv3_tiles[:1]
 sv3_tiles.pprint()
 
 sv3_tiles.write('test-tiles.fits', format='fits', overwrite=True)
