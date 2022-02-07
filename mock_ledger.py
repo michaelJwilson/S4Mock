@@ -9,11 +9,11 @@ import numpy  as np
 import matplotlib.pyplot   as plt
 import matplotlib.gridspec as gridspec
 
-from astropy.io import fits as fits
-from astropy.table import Table
-from astropy import constants as const
-from astropy import units as u
-from astropy.table import QTable
+from   astropy.io import fits as fits
+from   astropy.table import Table
+from   astropy import constants as const
+from   astropy import units as u
+from   astropy.table import QTable
 
 sys.path.append(os.environ['HOME'] + '/LSS/py')
 
@@ -25,55 +25,34 @@ from   desitarget.sv3.sv3_targetmask import desi_mask, bgs_mask, mws_mask
 from   desitarget.geomask import get_imaging_maskbits 
 
 
-def create_mock_ledger_hp(outdir, healpix=2286, nside=32, mxxl=None):    
-    # map of all healpix in MXXL file
-    fpath='/global/cscratch1/sd/mjwilson/desi/BGS/lumfn/MXXL/bright_v0.9.fits'
+def load_mxxl(nside=32):
+    fpath = '/global/cscratch1/sd/mjwilson/desi/BGS/lumfn/MXXL/bright_v0.9.fits'
+    mxxl  = Table.read(fpath)
 
+    theta = np.pi / 2. - np.radians(mxxl['DEC'].data)
+    phi   = np.radians(mxxl['RA'].data)
+
+    mxxl['HPX'] = hp.ang2pix(nside, theta, phi,nest=True, lonlat=False)
+    
+    return  mxxl
+    
+def create_mock_ledger_hp(outdir, healpix=2286, nside=32, mxxl=None):    
     # TODO: Check nside matches desitarget file split NSIDE.     
     if mxxl == None:
-        f    = fits.open(fpath)
-        mxxl = f[1].data
+        mxxl = load_mxxl()
     
     npix = hp.nside2npix(nside)
     pixel_area = hp.nside2pixarea(nside,degrees=True)
 
     print('npix: {}; pixel_area: {} for nside: {}'.format(npix, pixel_area, nside))
     
-    theta = np.pi / 2. - np.radians(mxxl['DEC'].data)
-    phi = np.radians(mxxl['RA'].data)
-
-    #indices of pixels with non-zero density, unorganised list.
-    all_pixel_indices = hp.ang2pix(nside, theta, phi,nest=True, lonlat=False)
-
-    #indice of filled pixels and corrosponding targets in pixel
-    filled_pixel_index, filled_targets_per_pixel = np.unique(all_pixel_indices, return_counts=True) 
-
-    #no. targets per pixel, initially 0 
-    targets_per_pixel = np.zeros(npix)
-
-    #update no. targets per pixel 
-    targets_per_pixel[filled_pixel_index] = filled_targets_per_pixel/pixel_area
-
-    # white background in plot.
-    targets_per_pixel[targets_per_pixel == 0] = np.NaN 
-
-    # ----  END TODO: very inefficient to load in whole mock for every pixel.    
-    
-    #########################
-    
-    #cut to a single pixel
-    
-    single_mask = (all_pixel_indices==healpix)
+    single_mask = (mxxl['HPX'].data == healpix)
     single_pixel_mxxl = mxxl[single_mask]
-    single_pixel_mxxl = Table(single_pixel_mxxl)
-    
-    #########################
-    
-    #set values for mock ledger 
     
     #true/false array for bright/faint objects
     single_pixel_mxxl['BGS_BRIGHT'] = single_pixel_mxxl['RMAG_DRED'] <= 19.5
-
+    single_pixel_mxxl['BGS_FAINT']  = (single_pixel_mxxl['RMAG_DRED'] > 19.5) & (single_pixel_mxxl['RMAG_DRED'] <= 20.175)
+    
     print('Selected {:.3f} as BGS Bright'.format(np.mean(single_pixel_mxxl['BGS_BRIGHT'])))
     
     #TODO: what is the resulting target density. 
@@ -89,7 +68,7 @@ def create_mock_ledger_hp(outdir, healpix=2286, nside=32, mxxl=None):
     is_bright =  single_pixel_mxxl['BGS_BRIGHT'] == True
 
     #mask for faints
-    is_faint =  single_pixel_mxxl['BGS_BRIGHT'] == False
+    is_faint =  single_pixel_mxxl['BGS_FAINT']   == False
     
     for x in ['PRIORITY', 'PRIORITY_INIT','BGS_TARGET','DESI_TARGET']:
         single_pixel_mxxl[x] = -99
@@ -189,9 +168,13 @@ def create_mock_ledger_hp(outdir, healpix=2286, nside=32, mxxl=None):
     t.meta['AUTHOR']  = 'L. Bigwood' 
     t.meta['Mock']    = 1 
 
-    t.write(outdir + '/test_ledger.fits', format='fits', overwrite=True)
+    opath = outdir + '/testledger-{:06d}.fits'.format(healpix)
+
+    print(f'Writing {opath}')
     
-    return  t 
+    t.write(opath, format='fits', overwrite=True)
+    
+    return  0
 
 
 if __name__ == '__main__':
@@ -205,7 +188,9 @@ if __name__ == '__main__':
     hpixel  = args.healpixel
     nside   = args.nside
     outdir  = args.outdir # /global/cscratch1/sd/mjwilson/desi/BGS/lumfn/MXXL/
+
+    mxxl    = load_mxxl()
     
-    create_mock_ledger_hp(outdir, healpix=hpixel, nside=nside)
+    create_mock_ledger_hp(outdir, healpix=hpixel, nside=nside, mxxl=mxxl)
 
     print('\n\nDone.\n\n')
