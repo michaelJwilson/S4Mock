@@ -47,6 +47,11 @@ source /global/project/projectdirs/desi/software/desi_environment.sh master
 export SKYBRICKS_DIR=${DESI_ROOT}/target/skybricks/v2
 module swap fiberassign/2.4.0
 
+desitarget load_targets_in_tiles:
+https://github.com/desihub/desitarget/blob/b3c58c89bbc5e07902154a0f0d890f62d4e29539/py/desitarget/io.py#L3429
+        tiles2pix:
+                https://github.com/desihub/desimodel/blob/d18fc5a7ff0c7f2c9cafee890c8c0858ad524ed2/py/desimodel/footprint.py#L106
+
 # https://github.com/desihub/fiberassign/tree/master/py/fiberassign/scripts/
 fba_run --targets /global/cfs/cdirs/desi/survey/catalogs/SV3/LSS/altmtl/debug_jl/alt_mtls_run128//Univ000//fa/SV3/20210507/000037-targ.fits
                   /global/cfs/cdirs/desi/survey/fiberassign/SV3/20210507/000037-scnd.fits
