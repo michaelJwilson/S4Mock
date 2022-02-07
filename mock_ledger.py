@@ -6,7 +6,6 @@ import argparse
 import healpy as hp
 import pandas as pd
 import numpy  as np
-import matplotlib.pyplot   as plt
 import matplotlib.gridspec as gridspec
 
 from   astropy.io import fits as fits
@@ -23,6 +22,7 @@ import LSS.SV3.cattools as cattools
 
 from   desitarget.sv3.sv3_targetmask import desi_mask, bgs_mask, mws_mask
 from   desitarget.geomask import get_imaging_maskbits 
+from LSS.SV3.cattools import tile2rosette
 
 
 def load_mxxl(nside=32, subsample=1):
@@ -202,6 +202,14 @@ def create_mock_ledger_hp(outdir, healpix=2286, nside=32, mxxl=None, overwrite=F
     print(f'Writing {opath}')
     
     t.write(opath, format='ascii.ecsv', overwrite=overwrite)
+
+    z = t['TARGETID', 'Z']
+
+    opath = os.path.dirname(opath) + '/' + os.path.basename(opath).replace('mtl', 'zs')
+
+    print(f'Writing {opath}')
+    
+    t['TARGETID', 'Z'].write(opath, format='ascii.ecsv', overwrite=overwrite)
     
     return  0
 

@@ -10,7 +10,16 @@ from   LSS.SV3.cattools import tile2rosette
 from   desimodel.footprint import tiles2pix
 
 
-root      = os.environ['CSCRATCH'] + '/altmtl/'
+root      = '/global/cscratch1/sd/mjwilson/altmtls/'
+
+'''
+def fetch_tiles(tpath):
+    tiles = Table.read('/global/cscratch1/sd/mjwilson/S4MOCK/tiles-sv3.ecsv')
+    tiles = tiles[(tiles['STATUS'] == 'done') & (tiles['PROGRAM']=='BRIGHT')]
+    tiles['ROSETTE'] = np.array([tile2rosette(x) for x in tiles['TILEID']])
+
+    return tiles
+'''
 
 # ---- Get SV3 tiles and assign rosette ---
 sv3_tiles = Table.read('/global/cfs/cdirs/desi/survey/ops/surveyops/trunk/ops/tiles-sv3.ecsv')
