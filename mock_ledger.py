@@ -190,7 +190,8 @@ if __name__ == '__main__':
     outdir  = args.outdir # /global/cscratch1/sd/mjwilson/desi/BGS/lumfn/MXXL/
 
     mxxl    = load_mxxl()
-    
-    create_mock_ledger_hp(outdir, healpix=hpixel, nside=nside, mxxl=mxxl)
+
+    for ii in [6399, 6570, 6741, 6743, 6912, 6914]:
+        create_mock_ledger_hp(outdir, healpix=ii, nside=nside, mxxl=mxxl)
 
     print('\n\nDone.\n\n')
