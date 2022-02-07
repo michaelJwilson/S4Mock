@@ -22,7 +22,7 @@ import LSS.SV3.cattools as cattools
 
 from   desitarget.sv3.sv3_targetmask import desi_mask, bgs_mask, mws_mask
 from   desitarget.geomask import get_imaging_maskbits 
-from LSS.SV3.cattools import tile2rosette
+from   LSS.SV3.cattools import tile2rosette
 
 
 def load_mxxl(nside=32, subsample=1):
@@ -127,28 +127,30 @@ def create_mock_ledger_hp(outdir, healpix=2286, nside=32, mxxl=None, overwrite=F
     
     #create ledger 
     
-    mtldatamodel = np.array([], dtype=[ 
-
-        ('RA', '>f8'), ('DEC', '>f8'), ('PARALLAX', '>f4'), 
-
-        ('PMRA', '>f4'), ('PMDEC', '>f4'), ('REF_EPOCH', '>f4'), 
-
-        ('SV3_DESI_TARGET', '>i8'), ('SV3_BGS_TARGET', '>i8'), ('SV3_MWS_TARGET', '>i8'), 
-
-        ('SCND_TARGET', '>i8'), ('TARGETID', '>i8'), 
-
-        ('SUBPRIORITY', '>f8'), ('OBSCONDITIONS', 'i4'), 
-
-        ('PRIORITY_INIT', '>i8'), ('NUMOBS_INIT', '>i8'), ('PRIORITY', '>i8'), 
-
-        ('NUMOBS', '>i8'), ('NUMOBS_MORE', '>i8'), ('Z', '>f8'), ('ZWARN', '>i8'), 
-
-        ('TIMESTAMP', 'U25'), ('VERSION', 'U14'), ('TARGET_STATE', 'U30'), 
-
-        ('ZTILEID', '>i4') 
-
-        ]) 
-
+    mtldatamodel = np.array([], dtype=[('RA', '>f8'),\
+                                       ('DEC', '>f8'),\
+                                       ('PARALLAX', '>f4'),\
+                                       ('PMRA', '>f4'),\
+                                       ('PMDEC', '>f4'),\
+                                       ('REF_EPOCH', '>f4'),\
+                                       ('SV3_DESI_TARGET', '>i8'),\
+                                       ('SV3_BGS_TARGET', '>i8'),\
+                                       ('SV3_MWS_TARGET', '>i8'),\
+                                       ('SCND_TARGET', '>i8'),\
+                                       ('TARGETID', '>i8'),\
+                                       ('SUBPRIORITY', '>f8'),\
+                                       ('OBSCONDITIONS', 'i4'),\
+                                       ('PRIORITY_INIT', '>i8'),\
+                                       ('NUMOBS_INIT', '>i8'),\
+                                       ('PRIORITY', '>i8'),\
+                                       ('NUMOBS', '>i8'),\
+                                       ('NUMOBS_MORE', '>i8'),\
+                                       ('Z', '>f8'),\
+                                       ('ZWARN', '>i8'),\
+                                       ('TIMESTAMP', 'U25'),\
+                                       ('VERSION', 'U14'),\
+                                       ('TARGET_STATE', 'U30'),\
+                                       ('ZTILEID', '>i4')]) 
 
     t = Table(mtldatamodel) 
 
@@ -181,7 +183,7 @@ def create_mock_ledger_hp(outdir, healpix=2286, nside=32, mxxl=None, overwrite=F
                    row['PRIORITY'],\
                    0,\
                    9,\
-                   -1.0,\
+                   row['Z'],\
                    -1,\
                    '2021-04-04T23:05:09',\
                    '0.57.0',\
@@ -200,8 +202,11 @@ def create_mock_ledger_hp(outdir, healpix=2286, nside=32, mxxl=None, overwrite=F
     t['TARGETID']        = 1000 * healpix + np.arange(len(t))
     
     print(f'Writing {opath}')
+
+    o = Table(t, copy=True)
+    o['Z'] = -1.
     
-    t.write(opath, format='ascii.ecsv', overwrite=overwrite)
+    o.write(opath, format='ascii.ecsv', overwrite=overwrite)
 
     z = t['TARGETID', 'Z']
 

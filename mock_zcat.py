@@ -29,7 +29,7 @@ from   desitarget.geomask import get_imaging_maskbits
 from   desitarget.io import read_targets_in_tiles
 
 
-def fba2zcat(fpath='/global/cscratch1/sd/mjwilson/altmtls/fba-000037.fits', nside=32):    
+def fba2zcat(fpath='/global/cscratch1/sd/mjwilson/altmtls/fba-000039.fits', nside=32):    
     # set values for mock zcat.
     # RA, DEC, ZTILEID, NUMOBS, DELTACHI2, ZWARN;
     zcatdatamodel =[('RA', '>f8'),\
@@ -69,13 +69,14 @@ def fba2zcat(fpath='/global/cscratch1/sd/mjwilson/altmtls/fba-000037.fits', nsid
     all_zs         = vstack([Table.read('/global/cscratch1/sd/mjwilson/altmtls/iledger/sv3zs-bright-hp-{}.ecsv'.format(x)) for x in pix])
     all_zs.pprint()
     
-    zz             = Table(zz)
+    zz                = Table(zz)
 
     del  zz ['Z']
     
-    zz             = join(zz, all_zs, keys='TARGETID', join_type='left')
-    zz['Z']        = zz['Z'].data.astype('>f8')
-    zz['ZTILEID']  = tid
+    zz                = join(zz, all_zs, keys='TARGETID', join_type='left')
+    zz['Z']           = zz['Z'].data.astype('>f8')
+    zz['ZTILEID']     = tid
+    zz['DELTACHI2']   = 100.
     
     zz.meta['AUTHOR'] = 'Leah Bigwood' 
     zz.meta['MOCK']   = 1

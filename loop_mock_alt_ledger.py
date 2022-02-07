@@ -58,7 +58,7 @@ altmtl = altcreate_mtl(tpath,\
                        mtldir,\
                        'dr2',\
                        'n',\
-                       '/global/cscratch1/sd/mjwilson/altmtls/{:06d}-targ.fits'.format(37),\
+                       '/global/cscratch1/sd/mjwilson/altmtls/{:06d}-targ.fits'.format(39),\
                        None,\
                        survey='sv3',\
                        mtltime=None,\

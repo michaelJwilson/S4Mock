@@ -1,3 +1,7 @@
+Bright tile:
+       /global/cfs/cdirs/desi/survey/fiberassign/SV3/20210405/000039-tiles.fits
+       /global/cfs/cdirs/desi/survey/catalogs/SV3/LSS//altmtl/debug_jl/alt_mtls_run128/Univ000/fa/SV3/20210406/fa-000039.sh
+
 TODO:
         What sense minimal?
         https://github.com/desihub/LSS/blob/8d9e1ec1b4ae7e190bd5e73a848dd4d8eaa79b55/py/LSS/SV3/fatools.py#L33

@@ -32,7 +32,10 @@ sv3_tiles['ROS'] = ros
 sv3_tiles.pprint()
 
 # ----  Limit tiles to rosettes: G12: [1,2]; G15: [8,9,10, 17] ----
-sv3_tiles = sv3_tiles[sv3_tiles['ROS'] == 1]
+# sv3_tiles = sv3_tiles[sv3_tiles['ROS'] == 1]
+
+
+sv3_tiles = sv3_tiles[sv3_tiles['TILEID'] == 39] 
 sv3_tiles.pprint()
 
 '''                                                                                                                                                                                                
@@ -50,7 +53,7 @@ print('\n\n')
 for tt, pp in zip(sv3_tiles['TILEID'], pix):
     print(tt, pp)
 
-sv3_tiles = sv3_tiles[:2]
+sv3_tiles = sv3_tiles[:1]
 sv3_tiles.pprint()
 
 sv3_tiles.write('test-tiles.fits', format='fits', overwrite=True)
