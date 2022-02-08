@@ -78,7 +78,7 @@ def create_mock_ledger_hp(outdir, healpix=2286, nside=32, mxxl=None, overwrite=F
     is_bright =  single_pixel_mxxl['BGS_BRIGHT'] == True
 
     #mask for faints
-    is_faint =  single_pixel_mxxl['BGS_FAINT']   == False
+    is_faint =  single_pixel_mxxl['BGS_FAINT']   == True
     
     for x in ['PRIORITY', 'PRIORITY_INIT','BGS_TARGET','DESI_TARGET']:
         single_pixel_mxxl[x] = -99
@@ -190,7 +190,6 @@ def create_mock_ledger_hp(outdir, healpix=2286, nside=32, mxxl=None, overwrite=F
                    'BGS|UNOBS',\
                    -1))
 
-    t.meta['AUTHOR']     = 'L. Bigwood' 
     t.meta['ISMOCK']     = 1 
     t.meta['SURVEY']     = 'sv3'
     t.meta['OBSCON']     = 'BRIGHT'
