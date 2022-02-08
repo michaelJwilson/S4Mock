@@ -79,7 +79,10 @@ def update_ledger(hpdirname, zcat, targets=None, obscon="DARK",
 
     # ADM run MTL, only returning the targets that are updated.
     # https://github.com/desihub/desitarget/blob/b3c58c89bbc5e07902154a0f0d890f62d4e29539/py/desitarget/mtl.py#L410
+    
     mtl = make_mtl(targets, oc, zcat=zcat, trimtozcat=True, trimcols=True)
+
+    print(mtl.dtype.names)
     
     # ADM this is redundant if targets wasn't sent, but it's quick.
     nside = _get_mtl_nside()

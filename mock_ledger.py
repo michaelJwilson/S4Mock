@@ -136,7 +136,6 @@ def create_mock_ledger_hp(outdir, healpix=2286, nside=32, mxxl=None, overwrite=F
                                        ('SV3_DESI_TARGET', '>i8'),\
                                        ('SV3_BGS_TARGET', '>i8'),\
                                        ('SV3_MWS_TARGET', '>i8'),\
-                                       ('SCND_TARGET', '>i8'),\
                                        ('TARGETID', '>i8'),\
                                        ('SUBPRIORITY', '>f8'),\
                                        ('OBSCONDITIONS', 'i4'),\
@@ -150,7 +149,8 @@ def create_mock_ledger_hp(outdir, healpix=2286, nside=32, mxxl=None, overwrite=F
                                        ('TIMESTAMP', 'U25'),\
                                        ('VERSION', 'U14'),\
                                        ('TARGET_STATE', 'U30'),\
-                                       ('ZTILEID', '>i4')]) 
+                                       ('ZTILEID', '>i4'),\
+                                       ('SV3_SCND_TARGET', '>i8')]) 
 
     t = Table(mtldatamodel) 
 
@@ -174,7 +174,6 @@ def create_mock_ledger_hp(outdir, healpix=2286, nside=32, mxxl=None, overwrite=F
                    row['SV3_DESI_TARGET'],\
                    row['SV3_BGS_TARGET'],\
                    0,\
-                   0,\
                    prev_maxtid,\
                    row['SUBPRIORITY'],\
                    516,\
@@ -188,7 +187,8 @@ def create_mock_ledger_hp(outdir, healpix=2286, nside=32, mxxl=None, overwrite=F
                    '2021-04-04T23:05:09',\
                    '0.57.0',\
                    'BGS|UNOBS',\
-                   -1))
+                   -1,\
+                   0))
 
     t.meta['ISMOCK']     = 1 
     t.meta['SURVEY']     = 'sv3'

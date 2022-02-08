@@ -37,15 +37,14 @@ zcatdir      = '/global/cscratch1/sd/mjwilson/altmtls/barbaro/'
 
 # Checkpoint 'B' - limit to single tileid
 # Checkpoint 'C' - limit to single zdate.
-'''
 mtldir  = '/global/cscratch1/sd/mjwilson/altmtls/ledger/'
 tpath   = '/global/homes/m/mjwilson/desi/S4MOCK/LEAHFORK/S4Mock/test-tiles.fits'
 tiles   = Table.read(tpath)
 mtltime = None
 
+'''
 ledgers = sorted(glob.glob(mtldir + '*.ecsv'))
-'''
-'''
+
 for led in ledgers:
     read_mtl_ledger(led, unique=True, isodate=None, initial=False, leq=False)
 
@@ -58,6 +57,8 @@ print(targ)
 # altcreate_mtl                                                                                                                                                                                     
 # https://github.com/desihub/LSS/blob/092c7d98ad50b3a70f8d4e1d2b148fb36e21bb14/py/LSS/SV3/fatools.py#L375
 # If mtl:  ``True`` then the `columns and `header` kwargs are ignored and the full ledger is returned.                                                                                               
+'''
+'''
 altmtl = altcreate_mtl(tpath,\
                        mtldir,\
                        'dr2',\
@@ -68,6 +69,8 @@ altmtl = altcreate_mtl(tpath,\
                        mtltime=None,\
                        pmtime_utc_str=None,\
                        add_plate_cols=True)
+'''
+'''
 '''
 '''                                                                                                                                                                                                  
 isodate : :class:`str`, defaults to ``None``                                                                                                                                                         
@@ -146,6 +149,8 @@ targets : :class:`~numpy.array` or `~astropy.table.Table`, optional
         and ``PRIORITY_INIT``. If ``None``, then assume the `zcat`
         includes ``RA`` and ``DEC`` and look up `targets` in the ledger.
 '''
+
+print(althpdirname)
 
 # Returns:  Nothing, but relevant ledger files are updated.
 update_ledger(althpdirname, altZCat, obscon='BRIGHT', numobs_from_ledger=True)
