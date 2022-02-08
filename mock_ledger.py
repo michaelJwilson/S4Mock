@@ -225,7 +225,7 @@ if __name__ == '__main__':
     parser.add_argument('--healpixel',  type=int, default=2286, help='Healpixel.')
     parser.add_argument('--nside',      type=int, default=32,   help='nside.')
     parser.add_argument('--overwrite',  help='Overwrite existing files', action='store_true')
-    parser.add_argument('--outdir',     type=str, help='Output directory.', default='/global/cscratch1/sd/mjwilson/altmtls/iledger/')
+    parser.add_argument('--outdir',     type=str, help='Output directory.', default='/global/cscratch1/sd/mjwilson/altmtls/ledger/initial/')
     
     args      = parser.parse_args()
     hpixel    = args.healpixel
