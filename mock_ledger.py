@@ -35,7 +35,10 @@ def load_mxxl(nside=32, subsample=1):
     phi   = np.radians(mxxl['RA'].data)
 
     mxxl['HPX'] = hp.ang2pix(nside, theta, phi,nest=True, lonlat=False)
-    
+
+    # single_pixel_mxxl['BGS_BRIGHT'] = single_pixel_mxxl['RMAG_DRED'] <= 19.5
+    # single_pixel_mxxl['BGS_FAINT']  = (single_pixel_mxxl['RMAG_DRED'] > 19.5) & (single_pixel_mxxl['RMAG_DRED'] <= 20.175)
+
     return  mxxl
     
 def create_mock_ledger_hp(outdir, healpix=2286, nside=32, mxxl=None, overwrite=False):    
@@ -173,22 +176,22 @@ def create_mock_ledger_hp(outdir, healpix=2286, nside=32, mxxl=None, overwrite=F
                    row['REF_EPOCH'],\
                    row['SV3_DESI_TARGET'],\
                    row['SV3_BGS_TARGET'],\
-                   0,\
+                   0,\  # MWS_TARGET
                    prev_maxtid,\
                    row['SUBPRIORITY'],\
-                   516,\
+                   516,\ # OBSCONDITIONS
                    row['PRIORITY_INIT'],\
-                   9,\
+                   3,\ # NUMOBS_INIT - not 9.
                    row['PRIORITY'],\
-                   0,\
-                   9,\
+                   0,\ # NUMOBS 
+                   3,\ # NUMOBS_MORE - not 9.
                    row['Z'],\
-                   -1,\
-                   '2021-04-04T23:05:09',\
-                   '0.57.0',\
-                   'BGS|UNOBS',\
-                   -1,\
-                   0))
+                   -1,\ # ZWARN
+                   '2021-04-04T23:05:09',\ # TIMESTAMP
+                   '0.57.0',\ # VERSION
+                   'BGS|UNOBS',\ # TARGET STATE 
+                   -1,\ # ZTILEID
+                   0)) # SC3_SCND_TARGET
 
     t.meta['ISMOCK']     = 1 
     t.meta['SURVEY']     = 'sv3'
