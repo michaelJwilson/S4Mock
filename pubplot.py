@@ -39,7 +39,7 @@ def set_size(width=240, fraction=2):
     return  (fig_width_in, fig_height_in)
 
 
-plt.style.use(os.environ['HOME'] + '/DESI/style.mplstyle')
+plt.style.use('/global/homes/m/mjwilson/desi/S4MOCK/LEAHFORK/S4Mock/style.mplstyle')
 
 nice_fonts = {
     "text.usetex": True,
