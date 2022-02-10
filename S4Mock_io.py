@@ -5,13 +5,15 @@ import numpy as np
 from astropy.io import fits as fits
 from desitarget.targets import desi_mask, bgs_mask, mws_mask 
 import pandas as pd
-
+import fitsio
 
 
 from   astropy.table import Table, vstack
 
 
 def read_mainsurvey_targets(pixlist=None):
+    
+    
     # What's the original path.
     # select bright targets.
     # calculate mags and ebv correction.
@@ -38,7 +40,6 @@ def read_mainsurvey_targets(pixlist=None):
     
     #loop through pixels
     for i, x in enumerate(to_grab):
-        x = fits.open(x)
         # f = np.array(x[1].data)[]
         f = fitsio.read(x, columns=min_cols)
         
@@ -52,8 +53,7 @@ def read_mainsurvey_targets(pixlist=None):
         #more timing stuff
         if (i % 20) == 0:
             runtime = (time.time() - start)
-
-        print('Runtime of {:.6f} seconds after {:d} pixels'.format(runtime, i))
+            print('Runtime of {:.6f} seconds after {:d} pixels'.format(runtime, i))
 
     data_stack = np.concatenate(hp_stack)      
 
@@ -65,12 +65,12 @@ def read_mainsurvey_targets(pixlist=None):
     # data_stack['RMAG_DRED'] = 22.5 - 2.5 * np.log10(flux / mwtrans)
     # RMAG, GMAG, W1, ZMAG, RFIBMAG, 
     return data_stack
-  
-  
-def read_mainsurvey_ledgers(mock=True):
+
+
+def read_mainsurvey_ledgers(data=True, uniquetargs=True):
     # desitarget.io.function
     # altmtls/ledger/
-    if mock:
+    if data:
         to_grab=glob.glob('/global/cfs/cdirs/desi/survey/ops/surveyops/trunk/mtl/main/bright/mtl-bright-hp-*.ecsv') 
 
     # very good practice to apply sorted, otherwise the file ordering will be random 	and non-repeatable.  
@@ -110,34 +110,117 @@ def read_mainsurvey_ledgers(mock=True):
         data_stack = pd.concat(hp_stack, ignore_index=True)
 
         #unique targets only and put it in right table format
-        mask,idx = np.unique(data_stack['TARGETID'],return_index=True)
-        data_stack = data_stack.iloc[idx]
+        
+        if uniquetargs==True:
+            mask,idx = np.unique(data_stack['TARGETID'],return_index=True)
+            data_stack = data_stack.iloc[idx]
+        
         data_stack = Table.from_pandas(data_stack)
 
         #more timing stuff
         runtime = (time.time() - start)
         print('\n\nTotal runtime of {:.6f} seconds after {:d} pixels'.format(runtime, npix_todo))
 
-        
-    else:
-        root = '/global/cscratch1/sd/mjwilson/S4MOCK/SV3REAL/SV3REALLEDGER/bright/'
-        fpaths = sorted(glob.glob(root + '*.'))
+    return data_stack
 
-        data_stack = vstack([Table.read(x) for x in fpaths])
+
+def read_sv3_ledgers(mock=True, uniquetargs=True):
+    # desitarget.io.function
+    # altmtls/ledger/
+    if mock==False:
+        to_grab=glob.glob('/global/cscratch1/sd/mjwilson/S4MOCK/SV3REAL/SV3REALLEDGER/bright/sv3mtl-bright-hp-*.ecsv') 
+
+    # very good practice to apply sorted, otherwise the file ordering will be random 	and non-repeatable.  
+        to_grab = sorted(to_grab) 
+
+        hp_stack = []
+
+        #do timer as takes a while
+        start = time.time() 
+
+        #total number of pixels, not quite sure where this has come from as npix is less than this above 
+        npix_todo = 200000
+
+        #loop through pixels
+        for i, x in enumerate(to_grab):
+            x = pd.read_csv(x, comment='#', delimiter='\s+') #usecols=['RA', 'DEC', 'TARGETID', 'BGS_TARGET', 'MWS_TARGET'])
+
+            hp_stack.append(x)
+
+            #more timing stuff
+            if (i % 100) == 0:
+                runtime = (time.time() - start)
+
+                print('Runtime of {:.6f} seconds after {:d} pixels'.format(runtime, i))
+
+            if i > npix_todo:
+                break
+
+        # Create a big table from the list of tables.  
+        data_stack = pd.concat(hp_stack, ignore_index=True)
+
+        #unique targets only and put it in right table format
+        
+        data_stack = Table.from_pandas(data_stack)
+
+        #more timing stuff
+        runtime = (time.time() - start)
+        print('\n\nTotal runtime of {:.6f} seconds after {:d} pixels'.format(runtime, npix_todo))
+
+    if mock==True:
+        to_grab=glob.glob('/global/cscratch1/sd/lbigwood/S4MOCK/mockledger/sv3/bright/sv3mtl-bright-hp-*.ecsv') 
+
+    # very good practice to apply sorted, otherwise the file ordering will be random 	and non-repeatable.  
+        to_grab = sorted(to_grab) 
+
+        hp_stack = []
+
+        #do timer as takes a while
+        start = time.time() 
+
+        #total number of pixels, not quite sure where this has come from as npix is less than this above 
+        npix_todo = 200000
+
+        #loop through pixels
+        for i, x in enumerate(to_grab):
+            x = pd.read_csv(x, comment='#', delimiter='\s+') #usecols=['RA', 'DEC', 'TARGETID', 'BGS_TARGET', 'MWS_TARGET'])
+
+            hp_stack.append(x)
+
+            #more timing stuff
+            if (i % 100) == 0:
+                runtime = (time.time() - start)
+
+                print('Runtime of {:.6f} seconds after {:d} pixels'.format(runtime, i))
+
+            if i > npix_todo:
+                break
+
+        # Create a big table from the list of tables.  
+        data_stack = pd.concat(hp_stack, ignore_index=True)
+
+        #unique targets only and put it in right table format
+        
+        data_stack = Table.from_pandas(data_stack)
+
+        #more timing stuff
+        runtime = (time.time() - start)
+        print('\n\nTotal runtime of {:.6f} seconds after {:d} pixels'.format(runtime, npix_todo))
+
+    
     
     return data_stack
 
-def read_desitargetrandoms(number=1, mask=None):
-    ns = np.arange(number)
 
-    fpaths = [f'/global/cfs/cdirs/desi/target/catalogs/dr9/0.49.0/randoms/resolve/randoms-{nn}-0.fits' for nn in ns]
 
-    rand = vstack([Table.read(x) for x in fpaths])
 
-    if mask is not None:
-        # use mask.
-        raise NotImplementedError('Stop.')
-       
+
+def read_desitargetrandoms(number=1):
+    ns = np.arange(1, number+1, 1)
+    
+    min_cols = ['RA' , 'DEC', 'MASKBITS', 'NOBS_G', 'NOBS_R', 'NOBS_Z']
+    
+    rand = np.hstack([fitsio.read(f'/global/cfs/cdirs/desi/target/catalogs/dr9/0.49.0/randoms/resolve/randoms-{nn}-0.fits', columns=min_cols) for nn in ns])
     return rand 
 
 def read_sv3tiles():
