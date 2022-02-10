@@ -6,9 +6,9 @@ def radec2pix(ra, dec, nside=32):
     theta = np.pi / 2. - np.radians(dec)
     phi   = np.radians(ra)
     
-    all_pixel_indices1 = hp.ang2pix(nside, theta, phi,nest=True, lonlat=False)
+    all_pixel_indices = hp.ang2pix(nside, theta, phi,nest=True, lonlat=False)
 
-    return pix
+    return all_pixel_indices
 
 def hp_props(nside):
     npix = hp.nside2npix(nside)
@@ -33,3 +33,16 @@ def targ_hpmap(targs, norm=None, nside=32):
         target_pixel_density /= norm
     
     return  target_pixel_density
+
+def rand_inrect(ra_lower, ra_upper, dec_lower,dec_upper,nside=32):
+    ra_rand = np.random.uniform(ra_lower,ra_upper,100)
+    dec_rand = np.random.uniform(dec_lower,dec_upper,100)
+    
+    theta = np.pi / 2. - np.radians(dec_rand.data)
+    phi = np.radians(ra_rand.data)
+
+    #indices of pixels with non-zero density, unorganised list
+    all_pixel_indices = hp.ang2pix(nside, theta, phi,nest=True, lonlat=False)
+    
+    return np.unique(all_pixel_indices)
+    
