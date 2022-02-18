@@ -350,18 +350,23 @@ def loop_alt_mockledger(obscon,\
                     
                     fba_path    = get_fba_fromnewmtl(ts, mtldir=ledg, outdir=fbadirbase, getosubp = getosubp)
                     
-                    print(f'Checkpoint G: Written {ts} & {fba_bash} based on {ledg}')
+                    print(f'Checkpoint G: Written {tarfn} & {fba_bash} based on {ledg}')
                     
                     command_run = (['bash', fbadir + 'fa-' + ts + '.sh'])
 
                     result      = subprocess.run(command_run, capture_output=True)
 
                     # https://docs.python.org/3/library/subprocess.html
+                    stde        = result.stde
                     stdo        = result.stdout
                     retcode     = result.returncode
                     
                     print(f'Checkpoitn H:  Ran fiberassign with result {retcode}')
 
+                    if retcode:
+                        print(stde)
+                        print(stdo)
+                        
                     OrigFAs.append(pf.open(FAOrigName)[1].data)
                     AltFAs.append(pf.open(FAAltName)[1].data)
 
@@ -480,6 +485,7 @@ def loop_alt_mockledger(obscon,\
 
 
 if __name__ == '__main__':
+    redoFA        = True
     singleDate    = 20210405
     altmtlbasedir = '/global/cscratch1/sd/mjwilson/altmtls/ledger/initial/'
     
@@ -496,7 +502,7 @@ if __name__ == '__main__':
                         debugOrig=False,\
                         getosubp=False,\
                         quickRestart=False,\
-                        redoFA=False,\
+                        redoFA=redoFA,\
                         multiproc=False,\
                         nproc=None)
     
