@@ -13,6 +13,8 @@ from   astropy.table import Table
 from   astropy import constants as const
 from   astropy import units as u
 from   astropy.table import QTable
+from   geometry import radec2pix
+from   mock_io import read_sv3tiles 
 
 sys.path.append(os.environ['HOME'] + '/LSS/py')
 
@@ -35,7 +37,10 @@ def load_mxxl(nside=32, subsample=1):
     phi   = np.radians(mxxl['RA'].data)
 
     mxxl['HPX'] = hp.ang2pix(nside, theta, phi,nest=True, lonlat=False)
-    
+
+    # single_pixel_mxxl['BGS_BRIGHT'] = single_pixel_mxxl['RMAG_DRED'] <= 19.5
+    # single_pixel_mxxl['BGS_FAINT']  = (single_pixel_mxxl['RMAG_DRED'] > 19.5) & (single_pixel_mxxl['RMAG_DRED'] <= 20.175)
+
     return  mxxl
     
 def create_mock_ledger_hp(outdir, healpix=2286, nside=32, mxxl=None, overwrite=False):    
@@ -136,7 +141,6 @@ def create_mock_ledger_hp(outdir, healpix=2286, nside=32, mxxl=None, overwrite=F
                                        ('SV3_DESI_TARGET', '>i8'),\
                                        ('SV3_BGS_TARGET', '>i8'),\
                                        ('SV3_MWS_TARGET', '>i8'),\
-                                       ('SCND_TARGET', '>i8'),\
                                        ('TARGETID', '>i8'),\
                                        ('SUBPRIORITY', '>f8'),\
                                        ('OBSCONDITIONS', 'i4'),\
@@ -150,7 +154,8 @@ def create_mock_ledger_hp(outdir, healpix=2286, nside=32, mxxl=None, overwrite=F
                                        ('TIMESTAMP', 'U25'),\
                                        ('VERSION', 'U14'),\
                                        ('TARGET_STATE', 'U30'),\
-                                       ('ZTILEID', '>i4')]) 
+                                       ('ZTILEID', '>i4'),\
+                                       ('SV3_SCND_TARGET', '>i8')]) 
 
     t = Table(mtldatamodel) 
 
@@ -174,21 +179,21 @@ def create_mock_ledger_hp(outdir, healpix=2286, nside=32, mxxl=None, overwrite=F
                    row['SV3_DESI_TARGET'],\
                    row['SV3_BGS_TARGET'],\
                    0,\
-                   0,\
                    prev_maxtid,\
                    row['SUBPRIORITY'],\
                    516,\
                    row['PRIORITY_INIT'],\
-                   9,\
+                   3,\
                    row['PRIORITY'],\
                    0,\
-                   9,\
+                   3,\
                    row['Z'],\
                    -1,\
                    '2021-04-04T23:05:09',\
                    '0.57.0',\
                    'BGS|UNOBS',\
-                   -1))
+                   -1,\
+                   0))
 
     t.meta['ISMOCK']     = 1 
     t.meta['SURVEY']     = 'sv3'
@@ -221,7 +226,7 @@ def create_mock_ledger_hp(outdir, healpix=2286, nside=32, mxxl=None, overwrite=F
 if __name__ == '__main__':
     # python mock_ledger.py --healpixel 1 --nside 32
     parser    = argparse.ArgumentParser(description='Create mock ledger for a given healpixel.')
-    parser.add_argument('--healpixel',  type=int, default=2286, help='Healpixel.')
+    parser.add_argument('--healpixel',  type=int, default=None, help='Healpixel.')
     parser.add_argument('--nside',      type=int, default=32,   help='nside.')
     parser.add_argument('--overwrite',  help='Overwrite existing files', action='store_true')
     parser.add_argument('--outdir',     type=str, help='Output directory.', default='/global/cscratch1/sd/mjwilson/altmtls/ledger/initial/')
@@ -232,12 +237,24 @@ if __name__ == '__main__':
     overwrite = args.overwrite
     outdir    = args.outdir 
 
-    mxxl      = load_mxxl(subsample=100)
+    tiles     = read_sv3tiles()
+    hps       = radec2pix(tiles['RA'].data, tiles['DEC'].data, unique=True)
 
-    hps       = [6399, 6570, 6741, 6743, 6912, 6914]
-    hps      += [6398, 6399, 6570, 6740, 6741, 6743, 6912, 6914]
+    tiles.pprint()
+    
+    if hpixel is not None:
+        hps  += hpixel
+
+    print(hps)
+
+    mxxl      = load_mxxl(subsample=1)
     
     for ii in hps:
-        create_mock_ledger_hp(outdir, healpix=ii, nside=nside, mxxl=mxxl, overwrite=overwrite)
+        try:
+            create_mock_ledger_hp(outdir, healpix=ii, nside=nside, mxxl=mxxl, overwrite=overwrite)
 
+        except Exception as E:
+            print('ERROR on HPX {}'.format(ii))
+            print(E)
+            
     print('\n\nDone.\n\n')

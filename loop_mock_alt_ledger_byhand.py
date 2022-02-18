@@ -9,6 +9,8 @@ from    update_ledger   import update_ledger
 
 
 # https://github.com/desihub/LSS/blob/092c7d98ad50b3a70f8d4e1d2b148fb36e21bb14/py/LSS/SV3/altmtltools.py#L293
+# ADM grab the MTL directory (in case we're relying on $MTL_DIR)
+# mtldir = get_mtl_dir(mtldir)
 # '/global/cfs/cdirs/desi/target/mtl/mtl-done-tiles.ecsv'
 survey       = 'sv3'
 obscon       = 'BRIGHT'
@@ -16,10 +18,13 @@ altmtltilefn = '/global/cscratch1/sd/mjwilson/altmtls/mtl-done-tiles.ecsv'
 zcatdir      = '/global/cscratch1/sd/mjwilson/altmtls/barbaro/'
 
 # https://github.com/desihub/LSS/blob/092c7d98ad50b3a70f8d4e1d2b148fb36e21bb14/py/LSS/SV3/altmtltools.py#L314
+# ADM And contruct the associated ZTILE filename.
+# ztilefn = os.path.join(zcatdir, get_ztile_file_name())
 # /global/cfs/cdirs/desi/spectro/redux/daily/tiles-specstatus.ecsv
 
 # Alt. mtl dir has its own mtl tiles file:
 # https://github.com/desihub/LSS/blob/092c7d98ad50b3a70f8d4e1d2b148fb36e21bb14/py/LSS/SV3/altmtltools.py#L342
+# altmtltilefn = os.path.join(altmtldir, get_mtl_tile_file_name(secondary=secondary))
 
 # Build the name of an output target file (or directory)
 # https://github.com/desihub/desitarget/blob/b3c58c89bbc5e07902154a0f0d890f62d4e29539/py/desitarget/io.py#L2502
@@ -37,15 +42,14 @@ zcatdir      = '/global/cscratch1/sd/mjwilson/altmtls/barbaro/'
 
 # Checkpoint 'B' - limit to single tileid
 # Checkpoint 'C' - limit to single zdate.
-'''
 mtldir  = '/global/cscratch1/sd/mjwilson/altmtls/ledger/'
 tpath   = '/global/homes/m/mjwilson/desi/S4MOCK/LEAHFORK/S4Mock/test-tiles.fits'
 tiles   = Table.read(tpath)
 mtltime = None
 
+'''
 ledgers = sorted(glob.glob(mtldir + '*.ecsv'))
-'''
-'''
+
 for led in ledgers:
     read_mtl_ledger(led, unique=True, isodate=None, initial=False, leq=False)
 
@@ -58,6 +62,8 @@ print(targ)
 # altcreate_mtl                                                                                                                                                                                     
 # https://github.com/desihub/LSS/blob/092c7d98ad50b3a70f8d4e1d2b148fb36e21bb14/py/LSS/SV3/fatools.py#L375
 # If mtl:  ``True`` then the `columns and `header` kwargs are ignored and the full ledger is returned.                                                                                               
+'''
+'''
 altmtl = altcreate_mtl(tpath,\
                        mtldir,\
                        'dr2',\
@@ -68,6 +74,8 @@ altmtl = altcreate_mtl(tpath,\
                        mtltime=None,\
                        pmtime_utc_str=None,\
                        add_plate_cols=True)
+'''
+'''
 '''
 '''                                                                                                                                                                                                  
 isodate : :class:`str`, defaults to ``None``                                                                                                                                                         
@@ -146,6 +154,8 @@ targets : :class:`~numpy.array` or `~astropy.table.Table`, optional
         and ``PRIORITY_INIT``. If ``None``, then assume the `zcat`
         includes ``RA`` and ``DEC`` and look up `targets` in the ledger.
 '''
+
+print(althpdirname)
 
 # Returns:  Nothing, but relevant ledger files are updated.
 update_ledger(althpdirname, altZCat, obscon='BRIGHT', numobs_from_ledger=True)

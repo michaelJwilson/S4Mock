@@ -3,9 +3,10 @@ import healpy as hp
 import numpy as np
 
 from   desitarget import io
-from   desitarget.mtl import _get_mtl_nside, make_mtl, get_mtl_ledger_format, mtlformatdict
+from   desitarget.mtl import _get_mtl_nside, get_mtl_ledger_format, mtlformatdict
 from   desitarget.geomask import match, match_to
 from   astropy.io import ascii
+from   make_mtl import make_mtl
 
 def update_ledger(hpdirname, zcat, targets=None, obscon="DARK",
                   numobs_from_ledger=False):
@@ -76,10 +77,13 @@ def update_ledger(hpdirname, zcat, targets=None, obscon="DARK",
         tii, zii = match(targets["TARGETID"], zcat["TARGETID"])
         # ADM update NUMOBS in the zcat for matches.
         zcat["NUMOBS"][zii] = targets["NUMOBS"][tii] + 1
-
+        
     # ADM run MTL, only returning the targets that are updated.
     # https://github.com/desihub/desitarget/blob/b3c58c89bbc5e07902154a0f0d890f62d4e29539/py/desitarget/mtl.py#L410
+    
     mtl = make_mtl(targets, oc, zcat=zcat, trimtozcat=True, trimcols=True)
+
+    print(mtl.dtype.names)
     
     # ADM this is redundant if targets wasn't sent, but it's quick.
     nside = _get_mtl_nside()
@@ -114,7 +118,7 @@ def update_ledger(hpdirname, zcat, targets=None, obscon="DARK",
             # ADM add any override entries TO THE END OF THE LEDGER.
             # mtlpix = vstack([mtlpix, overmtl])
             pass
-        
+
         # ADM if we're working with .ecsv, simply append to the ledger.
         if ender == 'ecsv':
             f = open(fn, "a")
