@@ -117,9 +117,14 @@ def altcreate_mtl(
             d, gaia_ref_epochs[gaiadr]
         )
     d = Table(d)
+
     outfndir = '/'.join(outfn.split('/')[:-1])
+
+    print('Writing targ. to {}'.format(outfndir))
+    
     if not os.path.exists(outfndir):
         os.makedirs(outfndir, exist_ok=True)
+
     d.write(outfn,format='fits', overwrite=True)
     del d
     return True

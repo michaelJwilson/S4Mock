@@ -9,6 +9,8 @@ from    update_ledger   import update_ledger
 
 
 # https://github.com/desihub/LSS/blob/092c7d98ad50b3a70f8d4e1d2b148fb36e21bb14/py/LSS/SV3/altmtltools.py#L293
+# ADM grab the MTL directory (in case we're relying on $MTL_DIR)
+# mtldir = get_mtl_dir(mtldir)
 # '/global/cfs/cdirs/desi/target/mtl/mtl-done-tiles.ecsv'
 survey       = 'sv3'
 obscon       = 'BRIGHT'
@@ -16,10 +18,13 @@ altmtltilefn = '/global/cscratch1/sd/mjwilson/altmtls/mtl-done-tiles.ecsv'
 zcatdir      = '/global/cscratch1/sd/mjwilson/altmtls/barbaro/'
 
 # https://github.com/desihub/LSS/blob/092c7d98ad50b3a70f8d4e1d2b148fb36e21bb14/py/LSS/SV3/altmtltools.py#L314
+# ADM And contruct the associated ZTILE filename.
+# ztilefn = os.path.join(zcatdir, get_ztile_file_name())
 # /global/cfs/cdirs/desi/spectro/redux/daily/tiles-specstatus.ecsv
 
 # Alt. mtl dir has its own mtl tiles file:
 # https://github.com/desihub/LSS/blob/092c7d98ad50b3a70f8d4e1d2b148fb36e21bb14/py/LSS/SV3/altmtltools.py#L342
+# altmtltilefn = os.path.join(altmtldir, get_mtl_tile_file_name(secondary=secondary))
 
 # Build the name of an output target file (or directory)
 # https://github.com/desihub/desitarget/blob/b3c58c89bbc5e07902154a0f0d890f62d4e29539/py/desitarget/io.py#L2502
