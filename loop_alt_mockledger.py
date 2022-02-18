@@ -1,5 +1,6 @@
 import os
 import sys
+import glob
 import numpy as np
 import desitarget
 import matplotlib.pyplot as plt
@@ -20,11 +21,13 @@ from   desitarget.mtl import get_mtl_dir, get_mtl_tile_file_name,get_mtl_ledger_
 from   astropy.table import Table,join,unique,vstack
 from   desiutil.log import get_logger
 from   desitarget.mtl import get_zcat_dir, get_ztile_file_name, tiles_to_be_processed
-from   desitarget.mtl import make_zcat,survey_data_model,update_ledger
+from   desitarget.mtl import make_zcat,survey_data_model
 from   desitarget.targets import decode_targetid
 from   LSS.SV3.altmtltools import *
-
 from   get_fba_fromnewmtl import get_fba_fromnewmtl
+from   zcat import multitile2zcat
+from   update_ledger import update_ledger
+
 
 log = get_logger()
 
@@ -264,6 +267,8 @@ def loop_alt_mockledger(obscon,\
         dates = np.sort(np.unique(tiles['ZDATE']))
 
         print(f'Checkpoint C1:  Ready to reduce dates: {dates}')
+
+        fba_paths = []
         
         for date in dates:
             print(f'\n\n  -------  Reducing {date}  -------')
@@ -286,7 +291,7 @@ def loop_alt_mockledger(obscon,\
 
                 # reformat rundate 
                 fadate     = ''.join(fadate.split('T')[0].split('-'))
-
+                
                 # prepare alt. mtl. directory to write  to. 
                 fbadirbase = altmtldir + '/fa/' + survey.upper() +  '/' + fadate + '/'
                 
@@ -303,9 +308,11 @@ def loop_alt_mockledger(obscon,\
                     fbadir    = fbadirbase
 
                     print(f'Looking for fiberassign file {FAAltName}')
+
+                fba_paths.append(FAAltName)
                     
                 # Note: forced to redo fiberassign. 
-                if True or redoFA or (not os.path.exists(FAAltName)):
+                if redoFA or (not os.path.exists(FAAltName)):
                     print(f'Checkpoint F: Rerunning fiberassign for {FAAltName}')
                     '''
                     if getosubp:
@@ -341,7 +348,7 @@ def loop_alt_mockledger(obscon,\
                     
                     print(f'Checkpoint pre-G: Ready to write {tarfn} & {fba_bash} based on\n{ledg}.')
                     
-                    get_fba_fromnewmtl(ts, mtldir=ledg, outdir=fbadirbase, getosubp = getosubp)
+                    fba_path    = get_fba_fromnewmtl(ts, mtldir=ledg, outdir=fbadirbase, getosubp = getosubp)
                     
                     print(f'Checkpoint G: Written {ts} & {fba_bash} based on {ledg}')
                     
@@ -357,13 +364,24 @@ def loop_alt_mockledger(obscon,\
 
                     OrigFAs.append(pf.open(FAOrigName)[1].data)
                     AltFAs.append(pf.open(FAAltName)[1].data)
-                    
+
             print(f'Checkpoint I:  Finished reducing date {date}.  Time to create a redshift catalog.')
 
-            exit(0)
+            # Where to find the mock redshifts.
+            # HACK 
+            mock_zdir  = '/global/cscratch1/sd/mjwilson/altmtls/ledger/initial/zs/' 
+            zcat       = multitile2zcat(fba_paths, mock_zdir)
             
+            opath      = altmtldir + '/fa/' + survey.upper() +  '/' + fadate + '/zbest-{}.txt'.format(fadate)
+
+            # print(opath)
+            
+            np.savetxt(opath, zcat)
+
             # ADM create the catalog of updated redshifts.
-            zcat = make_zcat(zcatdir, dateTiles, obscon, survey)
+            # HACK
+            # zbest_dir = os.path.dirname(opath) 
+            # zcat      = make_zcat(zbest_dir, dateTiles, obscon, survey)
             
             # ADM insist that for an MTL loop with real observations, the zcat
             # ADM must conform to the data model. In particular, it must include
@@ -372,7 +390,7 @@ def loop_alt_mockledger(obscon,\
             # ADM Note that the data model differs with survey type.
 
             print(f'Checkpoint I2:  Created redshift catalog, checking datamodel')
-            
+
             zcatdm  = survey_data_model(zcatdatamodel, survey=survey)
             
             if zcat.dtype.descr != zcatdm.dtype.descr:
@@ -382,7 +400,7 @@ def loop_alt_mockledger(obscon,\
                 raise ValueError(msg)
 
             print(f'Checkpoint I3:  All good.')
-
+            
             # ADM useful to know how many targets were updated.
             _, _, _, _, sky, _ = decode_targetid(zcat["TARGETID"])
             ntargs, nsky       = np.sum(sky == 0), np.sum(sky)
@@ -397,7 +415,7 @@ def loop_alt_mockledger(obscon,\
 
             print('Checkpoint J:  Applying fiber remapping.')
 
-            for ofa, afa in zip (OrigFAs, AltFAs):
+            for ofa, afa in zip(OrigFAs, AltFAs):
                 # Mapping of Real2Alt and Alt2Real Targetid based on fiber.
                 A2RMapTemp, R2AMapTemp = createFAmap(ofa, afa)
                 
@@ -406,40 +424,48 @@ def loop_alt_mockledger(obscon,\
 
                 print('Checkpoint K:  Created fiber remapping, making alternate Z cat.')
 
-                print(type(zcat))
-                print(zcat.dtype)
+                # print(type(zcat))
+                # print(zcat.dtype)
 
                 # Take the data zcatalog, clone it and rewrite the TARGETIDs using real2alt.
                 altZCat = makeAlternateZCat(zcat, R2AMap, A2RMap)
 
                 print('Checkpoint K2:  Created alternate Z cat.')
+
+            # HACK
+            if not redoFA:
+                altZCat = zcat
                 
-            print(type(altZCat))
-            print(altZCat.dtype)
+            # print(type(altZCat))
+            # print(altZCat.dtype)
             
             # ADM update the appropriate ledger.
             print(f'Checkpoint L:  Updating the ledger at {althpdirname} with alternate ZCAT.')
-
+            
             # Redshift catalog table with columns ``TARGETID``, ``NUMOBS``, ``Z``, ``ZWARN``, ``ZTILEID``, and ``msaddcols``
             # https://github.com/desihub/desitarget/blob/1c7edc091ba7b8c628914826abcd5ee9c7a8bf24/py/desitarget/mtl.py#L1777
 
             # ADM also ignore anything with NODATA set in ZWARN.
             # nodata = zcat["ZWARN"] & zwarn_mask["NODATA"] != 0
-
+            '''
             # SB ignore targets that failed QA: ZWARN bits BAD_SPECQA|BAD_PETALQA
             # badqa = zcat["ZWARN"] & zwarn_mask.mask("BAD_SPECQA|BAD_PETALQA") != 0
+            # HACK
             update_ledger(althpdirname, altZCat, obscon=obscon.upper(),
                           numobs_from_ledger=numobs_from_ledger)
-            
+            '''
+            '''
             if survey == "main":
                 print('Adding TIMESTAMP after sleep(1).')
                 
                 sleep(1)
                 
                 tiles["TIMESTAMP"] = get_utc_date(survey=survey)
-
+            '''
             print('Checkpoint M:  Finished with ledger update.')
 
+            print(f'Checkpoint pre-N:  Ready to update {altmtltilefn}.')
+                        
             io.write_mtl_tile_file(altmtltilefn, dateTiles)
 
             print('Checkpoint N:  Finished with writing mtl tile file.')

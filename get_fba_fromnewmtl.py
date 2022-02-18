@@ -62,13 +62,13 @@ def tileid2fbas(tileid):
             date = int(fht['PMTIME'][:10].translate({ord('-'): None}))-1
             indir = '/global/cfs/cdirs/desi/survey/fiberassign/SV3/'+str(date)+'/'
 
-    return indir 
+    return indir, fht 
 
 
 def get_fba_fromnewmtl(tileid,mtldir=None,getosubp=False,outdir=None,faver=None):
     ts = str(tileid).zfill(6)
 
-    indir = tileid2fbas(tileid)
+    indir, fht = tileid2fbas(tileid)
 
     print(indir)        
     tilef = indir+ts+'-tiles.fits'
@@ -174,6 +174,8 @@ def get_fba_fromnewmtl(tileid,mtldir=None,getosubp=False,outdir=None,faver=None)
         fo.write(" --margin-gfa 0.4 --margin-petal 0.4 --margin-pos 0.05")
     fo.close()    
 
+    return  'fba-' + ts + '.fits'
+    
 #     if float(fht['FA_VER'][:3]) < 2.4:
 #         fo.write("module swap fiberassign/2.3.0\n")
 #     else:

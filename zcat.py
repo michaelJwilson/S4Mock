@@ -12,6 +12,7 @@ from   astropy import units as u
 from   astropy.table import QTable
 from   desimodel.footprint import tiles2pix
 from   get_fba_fromnewmtl import tileid2fbas
+from   desitarget.sv3.sv3_targetmask import desi_mask
 
 import os
 import healpy as hp
@@ -30,50 +31,68 @@ from   desitarget.sv3.sv3_targetmask import desi_mask, bgs_mask, mws_mask
 from   desitarget.geomask import get_imaging_maskbits 
 from   desitarget.io import read_targets_in_tiles
 
+zcatdatamodel =[('RA', '>f8'),\
+                ('DEC', '>f8'),\
+                ('TARGETID', '>i8'),
+                ('NUMOBS', '>i4'),\
+                ('Z', '>f8'),\
+	        ('ZWARN', '>i8'),\
+                ('ZTILEID', '>i4'),\
+               ]
+
 def coadd(zz):
-    uids, cnts = np.unique(zz['TARGETID'].data, return_counts=True)
+    # HACK
+    zz['TARGETID'][:10] = 1
+
+    uids, cnts = np.unique(zz['TARGETID'], return_counts=True)
 
     repeats    = uids[cnts > 1]
     rcnts      = cnts[cnts > 1]
+
+    # print(repeats)
     
     for tid, cnt in zip(repeats, rcnts):
-        row    = zz[zz['TARGETID'] == tid][0] 
+        row    = zz[zz['TARGETID'] == tid][:1]
         rest   = zz[zz['TARGETID'] != tid]
         
-        row['NUMOBS']     = cnt
+        row['NUMOBS']      = cnt
 
-        # TODO:  All good redshifts for now. 
-        row['ZWARN']      = 0
-        row['ZTILEID']    = rest['ZTILEID'].max()
-        row['DELTACHI2'] *= np.sqrt(cnt)
+        row['ZWARN']       = 0
+        row['ZTILEID']     = rest['ZTILEID'].max()
+
+        # TODO:  All good redshifts for now.
+        # TODO:  All good redshifts for now; MTL does not track dChi2. 
+        # row['DELTACHI2'] *= np.sqrt(cnt)
+
+        zz                 = np.array(rest.tolist() + row.tolist(), dtype=zcatdatamodel)
+
+    zz = zz[np.argsort(zz['TARGETID'])]
         
-        zz                = rest.add_row(row)
-
-    return zz 
+    return  zz 
 
 def multitile2zcat(fs, zdir):
-    zz = vstack([fba2zcat(fpath, zdir) for fpath in fs])
-    zz = coadd(zz)
+    print(zdir)
 
-    return zz
+    for ff in fs:
+        print(ff)
+
+    zbests = [fba2zcat(fpath, zdir) for fpath in fs]
+    zbests = [zbest.tolist() for zbest in zbests if zbest is not None]
+    zbests = [item for sublist in zbests for item in sublist] 
+    zbests = np.array(zbests, dtype=zcatdatamodel)
+
+    zbests = coadd(zbests)
+
+    zbests = Table(zbests)
     
+    return zbests
+
 def fba2zcat(fpath, zdir, nside=32):    
     # set values for mock zcat.
     # RA, DEC, ZTILEID, NUMOBS, DELTACHI2, ZWARN;
-    zcatdatamodel =[('RA', '>f8'),\
-                    ('DEC', '>f8'),\
-                    ('TARGETID', '>i8'),
-                    ('NUMOBS', '>i4'),\
-                    ('Z', '>f8'),\
-                    ('ZWARN', '>i8'),\
-                    ('ZTILEID', '>i4'),\
-                   ]
-    
     fba = Table.read(fpath)
     tar = Table.read(fpath, 'FTARGETS')
     # tar.pprint()
-
-    zz  = np.zeros(len(fba), dtype=zcatdatamodel)
     
     # TODO:  Why no SV3_DESI_TARGET etc?
     # bgs = (fba['SV3_DESI_TARGET'].data & desi_mask['BGS_ANY']) != 0     
@@ -81,14 +100,9 @@ def fba2zcat(fpath, zdir, nside=32):
     bgs = fba
     # bgs.pprint()
     
-    zz['RA']       = bgs['TARGET_RA']
-    zz['DEC']      = bgs['TARGET_DEC']
-    zz['TARGETID'] = bgs['TARGETID']
-
-    zz             = zz[~np.isnan(zz['RA'].data)]
     tid            = fpath.split('-')[-1].split('.')[0]
 
-    fbadir         = tileid2fbas(tid)
+    fbadir, _      = tileid2fbas(tid)
     ts             = str(tid).zfill(6)
     tpath          = fbadir+ts+'-tiles.fits'
     
@@ -96,32 +110,37 @@ def fba2zcat(fpath, zdir, nside=32):
     # tiles.pprint()
 
     pix            = tiles2pix(nside, tiles=tiles, radius=None, per_tile=False, fact=2**7)
-    
-    # HACK
-    pix            = [6398, 6399, 6570, 6740, 6741, 6743, 6912, 6914]
-    
-    # Assume anything assigned is redshifted.
-    mock_zs             = vstack([Table.read('{}/sv3zs-bright-hp-{}.ecsv'.format(zdir, x)) for x in pix])
-
-    # TODO:
-    all_zs              = mock_zs 
-
-    all_zs['NUMOBS']    = np.ones(len(all_zs), dtype='>i4')
-    all_zs['ZWARN']     = np.zeros(len(all_zs), dtype='>i8')
-    all_zs['ZTILEID']   = int(tid) * np.ones(len(all_zs), dtype='>i4')
-    all_zs['DELTACHI2'] = 100.
-
-    # all_zs.pprint()
-
+        
     # Force zcat data model.
-    zz                  = Table(zz)
-    # zz.pprint()
+    zz                  = np.zeros(len(bgs), dtype=zcatdatamodel)
+    zz['RA']            = bgs['TARGET_RA']
+    zz['DEC']           = bgs['TARGET_DEC']
+    zz['TARGETID']      = bgs['TARGETID']
+    zz['NUMOBS']        = 1
+    zz['ZWARN']         = 0
+    zz['ZTILEID']       = tid
+    
+    zz                  = zz[np.argsort(zz['TARGETID'])]
 
-    del  zz['Z']
-    del  zz['NUMOBS']
-    del  zz['ZWARN']
-    del  zz['ZTILEID']
+    # Assume anything assigned is redshifted.                                                                                                                                                        
+    pix_paths           = ['{}/sv3zs-bright-hp-{}.ecsv'.format(zdir, x) for x in pix]
+    pix_paths           = [pix_path for pix_path in pix_paths if os.path.isfile(pix_path)]
 
+    # print(pix_paths)
+    
+    mock_zs             = vstack([Table.read(pix_path) for pix_path in pix_paths])
+    mock_zs             = mock_zs[np.isin(mock_zs['TARGETID'].data, zz['TARGETID'])]
+    
+    mock_zs.sort('TARGETID')
+    
+    # mock_zs.pprint()
+    
+    zz                  = zz[np.isin(zz['TARGETID'], mock_zs['TARGETID'])]    
+    zz['Z']             = mock_zs['Z']
+    
+    # TODO:
+    # https://github.com/desihub/desitarget/blob/1c7edc091ba7b8c628914826abcd5ee9c7a8bf24/py/desitarget/mtl.py#L2394
+    
     '''
     https://github.com/desihub/desitarget/blob/b3c58c89bbc5e07902154a0f0d890f62d4e29539/py/desitarget/mtl.py#L410
 
@@ -133,22 +152,25 @@ def fba2zcat(fpath, zdir, nside=32):
       remains unaltered, make sure to copy `zcat` before passing it.
     '''
 
-    
-    zz                = join(zz, all_zs, keys='TARGETID', join_type='left')
-    zz['Z']           = zz['Z'].data.astype('>f8')
-        
-    return  zz
+    if len(zz) == 0:
+        return None
+
+    else:
+        return  zz
 
 
 if __name__ == '__main__':
-    fpath  = '/global/cscratch1/sd/mjwilson/altmtls/ledger/initial//Univ000//fa/SV3/20210406/fba-000201.fits'
-    zdir   = '/global/cscratch1/sd/mjwilson/altmtls/ledger/zs/'
+    fpath   = '/global/cscratch1/sd/mjwilson/altmtls/ledger/initial//Univ000//fa/SV3/20210406/fba-000201.fits'
+    zdir    = '/global/cscratch1/sd/mjwilson/altmtls/ledger/initial/zs/'
     
-    zz     = fba2zcat(fpath, zdir)
-    zz     = zz[zz['Z'].data > 0.1]
+    zz      = fba2zcat(fpath, zdir)
 
-    fpaths = '/global/cscratch1/sd/mjwilson/altmtls/ledger/initial//Univ000//fa/SV3/20210406/fba*.fits'
+    # print(zz)
 
-    zz     = multitile2zcat(fpaths, zdir)
     
+    fpaths  = glob.glob('/global/cscratch1/sd/mjwilson/altmtls/ledger/initial//Univ000//fa/SV3/20210406/fba*.fits')
+
+    zz      = multitile2zcat(fpaths, zdir)
+    
+    print(zz)
     

@@ -2,12 +2,15 @@ import healpy as hp
 import numpy as np
 
 
-def radec2pix(ra, dec, nside=32):
+def radec2pix(ra, dec, nside=32, unique=False):
     theta = np.pi / 2. - np.radians(dec)
     phi   = np.radians(ra)
     
-    all_pixel_indices1 = hp.ang2pix(nside, theta, phi,nest=True, lonlat=False)
+    pix   = hp.ang2pix(nside, theta, phi, nest=True, lonlat=False)
 
+    if unique:
+        pix = np.unique(pix)
+    
     return pix
 
 def hp_props(nside):

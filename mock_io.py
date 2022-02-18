@@ -3,10 +3,11 @@ import glob
 import desitarget
 import numpy as np
 
+from   ros_tools import tile2rosette
 from   astropy.table import Table, vstack
 
-
-def read_targets()
+'''
+def read_targets():
   # What's the original path.
   # select bright targets.
   # calculate mags and ebv correction.
@@ -76,7 +77,7 @@ def read_desitargetrandoms(number=1, mask=None):
         raise NotImplementedError('Stop.')
        
     return rand 
-
+'''
 def read_sv3tiles():
     tiles = Table.read('/global/cscratch1/sd/mjwilson/S4MOCK/tiles-sv3.ecsv')
     tiles = tiles[(tiles['STATUS'] == 'done') & (tiles['PROGRAM']=='BRIGHT')]
