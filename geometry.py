@@ -3,13 +3,16 @@ import numpy as np
 from desitarget.geomask import get_imaging_maskbits
 
 
-def radec2pix(ra, dec, nside=32):
+def radec2pix(ra, dec, nside=32,unique=False):
     theta = np.pi / 2. - np.radians(dec)
     phi   = np.radians(ra)
     
-    all_pixel_indices = hp.ang2pix(nside, theta, phi,nest=True, lonlat=False)
+    pix   = hp.ang2pix(nside, theta, phi, nest=True, lonlat=False)
 
-    return all_pixel_indices
+    if unique:
+        pix = np.unique(pix)
+
+    return pix
 
 def hp_props(nside):
     npix = hp.nside2npix(nside)
