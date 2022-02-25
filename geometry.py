@@ -16,6 +16,7 @@ def hp_props(nside):
     npix = hp.nside2npix(nside)
     pixel_area = hp.nside2pixarea(nside,degrees=True)
     return npix, pixel_area
+
 def targ_hpmap(targs, norm=None, nside=32):
     pix = radec2pix(ra, dec, nside=nside)
     
