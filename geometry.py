@@ -44,17 +44,6 @@ def targ_hpmap(targs, norm=None, nside=32, return_pix=False):
     else:
         return  target_pixel_density
 
-def rand_inrect(ra_lower, ra_upper, dec_lower,dec_upper,nside=32):
-    ra_rand = np.random.uniform(ra_lower,ra_upper,100)
-    dec_rand = np.random.uniform(dec_lower,dec_upper,100)
-    
-    theta = np.pi / 2. - np.radians(dec_rand.data)
-    phi = np.radians(ra_rand.data)
-
-    #indices of pixels with non-zero density, unorganised list
-    all_pixel_indices = hp.ang2pix(nside, theta, phi,nest=True, lonlat=False)
-    
-    return np.unique(all_pixel_indices)
 
 
     
