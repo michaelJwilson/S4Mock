@@ -13,6 +13,8 @@ from   astropy.table import Table
 from   astropy import constants as const
 from   astropy import units as u
 from   astropy.table import QTable
+from   geometry import radec2pix
+from   mock_io import read_sv3tiles 
 
 sys.path.append(os.environ['HOME'] + '/LSS/py')
 
@@ -176,22 +178,22 @@ def create_mock_ledger_hp(outdir, healpix=2286, nside=32, mxxl=None, overwrite=F
                    row['REF_EPOCH'],\
                    row['SV3_DESI_TARGET'],\
                    row['SV3_BGS_TARGET'],\
-                   0,\  # MWS_TARGET
+                   0,\
                    prev_maxtid,\
                    row['SUBPRIORITY'],\
-                   516,\ # OBSCONDITIONS
+                   516,\
                    row['PRIORITY_INIT'],\
-                   3,\ # NUMOBS_INIT - not 9.
+                   3,\
                    row['PRIORITY'],\
-                   0,\ # NUMOBS 
-                   3,\ # NUMOBS_MORE - not 9.
+                   0,\
+                   3,\
                    row['Z'],\
-                   -1,\ # ZWARN
-                   '2021-04-04T23:05:09',\ # TIMESTAMP
-                   '0.57.0',\ # VERSION
-                   'BGS|UNOBS',\ # TARGET STATE 
-                   -1,\ # ZTILEID
-                   0)) # SC3_SCND_TARGET
+                   -1,\
+                   '2021-04-04T23:05:09',\
+                   '0.57.0',\
+                   'BGS|UNOBS',\
+                   -1,\
+                   0))
 
     t.meta['ISMOCK']     = 1 
     t.meta['SURVEY']     = 'sv3'
@@ -224,7 +226,7 @@ def create_mock_ledger_hp(outdir, healpix=2286, nside=32, mxxl=None, overwrite=F
 if __name__ == '__main__':
     # python mock_ledger.py --healpixel 1 --nside 32
     parser    = argparse.ArgumentParser(description='Create mock ledger for a given healpixel.')
-    parser.add_argument('--healpixel',  type=int, default=2286, help='Healpixel.')
+    parser.add_argument('--healpixel',  type=int, default=None, help='Healpixel.')
     parser.add_argument('--nside',      type=int, default=32,   help='nside.')
     parser.add_argument('--overwrite',  help='Overwrite existing files', action='store_true')
     parser.add_argument('--outdir',     type=str, help='Output directory.', default='/global/cscratch1/sd/mjwilson/altmtls/ledger/initial/')
@@ -235,12 +237,24 @@ if __name__ == '__main__':
     overwrite = args.overwrite
     outdir    = args.outdir 
 
-    mxxl      = load_mxxl(subsample=100)
+    tiles     = read_sv3tiles()
+    hps       = radec2pix(tiles['RA'].data, tiles['DEC'].data, unique=True)
 
-    hps       = [6399, 6570, 6741, 6743, 6912, 6914]
-    hps      += [6398, 6399, 6570, 6740, 6741, 6743, 6912, 6914]
+    tiles.pprint()
+    
+    if hpixel is not None:
+        hps  += hpixel
+
+    print(hps)
+
+    mxxl      = load_mxxl(subsample=1)
     
     for ii in hps:
-        create_mock_ledger_hp(outdir, healpix=ii, nside=nside, mxxl=mxxl, overwrite=overwrite)
+        try:
+            create_mock_ledger_hp(outdir, healpix=ii, nside=nside, mxxl=mxxl, overwrite=overwrite)
 
+        except Exception as E:
+            print('ERROR on HPX {}'.format(ii))
+            print(E)
+            
     print('\n\nDone.\n\n')
